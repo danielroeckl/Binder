@@ -37,10 +37,12 @@
 <style>
   /* ---------- Design-Tokens (Farben, Maße) ---------- */
   :root {
-    --card-w: 112px;             /* Kartenbreite im Ordner (Verhältnis 6,3:8,8) */
-    --card-h: 156px;             /* 112 * (8.8/6.3) ≈ 156  -> exaktes Kartenformat */
-    --grid-gap: 8px;
-    --page-pad: 22px;            /* Innenabstand der Seite = "Rand" ums Raster */
+    --card-w: 156px;             /* Kartenbreite (Verhältnis 6,3:8,8), 50% größer */
+    --card-h: 218px;             /* 156 * (8.8/6.3) ≈ 218 */
+    --grid-gap: 12px;
+    /* Quadratisches Blatt: Rasterhöhe = 3*218 + 2*12 = 678px -> Blatt 750x750 */
+    --page-size: 750px;
+    --page-pad: 22px;            /* (Restwert) */
 
     --leather-1: #3a2a1d;
     --leather-2: #241710;
@@ -122,12 +124,30 @@
   .seg button { border: 0; background: transparent; color: #f4eede; padding: 8px 11px; font-size: 12px; cursor: pointer; }
   .seg button.active { background: var(--gold); color: #1a130a; font-weight: 700; }
 
+  /* Toolbar-Gruppen + Mehr-Menü */
+  .toolbar-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .menu-wrap { position: relative; }
+  .menu {
+    position: absolute; top: calc(100% + 6px); right: 0; min-width: 230px;
+    background: rgba(28,20,12,.98); border: 1px solid rgba(201,162,75,.35);
+    border-radius: 10px; padding: 6px; z-index: 60;
+    box-shadow: 0 12px 30px rgba(0,0,0,.5); display: none;
+  }
+  .menu.open { display: block; }
+  .menu-item {
+    display: block; width: 100%; text-align: left;
+    background: transparent; border: 0; color: #f4eede;
+    padding: 9px 12px; border-radius: 7px; font-size: 13px; cursor: pointer;
+  }
+  .menu-item:hover { background: rgba(255,255,255,.1); }
+  .menu-sep { height: 1px; background: rgba(255,255,255,.1); margin: 5px 4px; }
+
   /* ---------- Bühne / Ordner ---------- */
   .stage {
     height: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 14px;
-    padding: 64px 24px 70px;
+    padding: 64px 156px 70px 24px;   /* rechts Platz für die Vorschau-Leiste */
     overflow: auto;
   }
 
@@ -154,23 +174,24 @@
     pointer-events: none; z-index: 30;
   }
 
-  /* Eine Ordnerhälfte (linke oder rechte Seite) */
+  /* Eine Ordnerhälfte (linke oder rechte Seite) — quadratisches Blatt */
   .side {
-    width: calc(var(--card-w)*3 + var(--grid-gap)*2 + var(--page-pad)*2 + 22px);
-    min-height: calc(var(--card-h)*3 + var(--grid-gap)*2 + var(--page-pad)*2);
-    padding: var(--page-pad);
+    width: var(--page-size);
+    height: var(--page-size);
+    min-height: var(--page-size);
     position: relative;
     transform-style: preserve-3d;
+    display: flex; align-items: center; justify-content: center;  /* Raster mittig */
     /* cremefarbenes "Papier"; wird von .page-bg-layer überlagert, wenn ein Bild gesetzt ist */
     background:
       linear-gradient(160deg, #fbf6ea, #f0e7d2);
     overflow: hidden;
   }
-  /* die rechte Seite bekommt links mehr Rand (für Lochung), umgekehrt links */
-  .side.right { padding-left: calc(var(--page-pad) + 22px); }
-  .side.left  { padding-right: calc(var(--page-pad) + 22px); }
-  .side.left  { border-radius: 8px 0 0 8px; box-shadow: inset -26px 0 36px -24px rgba(90,60,30,.55); }
-  .side.right { border-radius: 0 8px 8px 0; box-shadow: inset  26px 0 36px -24px rgba(90,60,30,.55); }
+  /* die Falz-Seite bekommt minimal mehr Rand für die Bindung */
+  .side.right { padding-left: 10px; }
+  .side.left  { padding-right: 10px; }
+  .side.left  { border-radius: 10px 4px 4px 10px; box-shadow: inset -30px 0 42px -26px rgba(60,40,20,.6); }
+  .side.right { border-radius: 4px 10px 10px 4px; box-shadow: inset  30px 0 42px -26px rgba(60,40,20,.6); }
   /* feiner Doppelrahmen auf den Seiten (wie im Referenzbild) */
   .side::before {
     content: ""; position: absolute; inset: 14px; z-index: 1;
@@ -209,44 +230,25 @@
     content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.18);
   }
 
-  /* Mittelfalz = silberne Ringmechanik */
-  /* ===== Ringmechanik (orientiert am Beispielbild) =====
-     Aufbau: schmale silberne Metallschiene in der Mitte (.spine).
-     Daran sitzen runde, offene Metallringe (.ring), die nach RECHTS greifen
-     und durch die Lochung am linken Rand der rechten Seite gehen. */
+  /* ===== Mittelfalz wie bei einem gebundenen Buch =====
+     Dunkle, leicht eingesenkte Rille zwischen den Seiten mit weichem
+     Schattenverlauf nach beiden Seiten. */
   .spine {
     width: 30px; flex: none; position: relative; z-index: 25;
-    /* gebürstete, leicht gewölbte Metallschiene */
     background:
-      repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 1px, rgba(0,0,0,.05) 1px 2px),
       linear-gradient(90deg,
-        #4c4f53 0%, #7e848a 18%, #b6bbc1 38%, #eef1f4 52%,
-        #c2c7cd 64%, #888d93 84%, #56595e 100%);
-    box-shadow:
-      inset 0 0 0 1px rgba(0,0,0,.35),
-      inset 5px 0 8px -6px rgba(0,0,0,.6),
-      inset -5px 0 8px -6px rgba(0,0,0,.6);
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: space-around; padding: 30px 0;
+        rgba(0,0,0,.05) 0%,
+        rgba(0,0,0,.35) 28%,
+        rgba(0,0,0,.55) 50%,
+        rgba(0,0,0,.35) 72%,
+        rgba(0,0,0,.05) 100%);
   }
-  /* Schrauben oben/unten an der Schiene (wie im Bild) */
-  .spine::before, .spine::after {
-    content: ""; position: absolute; left: 50%; transform: translateX(-50%);
-    width: 14px; height: 14px; border-radius: 50%;
-    background: radial-gradient(circle at 40% 35%, #f0f2f4, #aab0b6 60%, #6d7378);
-    box-shadow: inset 0 1px 1px rgba(255,255,255,.7), inset 0 -1px 2px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.4);
-    z-index: 3;
+  /* feine Mittellinie der Bindung */
+  .spine::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 50%;
+    width: 2px; transform: translateX(-50%);
+    background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.5) 12%, rgba(0,0,0,.5) 88%, rgba(0,0,0,0));
   }
-  .spine::before { top: 8px; }
-  .spine::after { bottom: 8px; }
-
-  /* ein offener runder Metallring (als SVG gezeichnet), greift über die Lochung */
-  .ring {
-    width: 54px; height: 54px; position: relative; z-index: 40;
-    margin-left: 30px;            /* nach rechts, über den Seitenrand */
-    pointer-events: none;
-  }
-  .ring svg { display: block; width: 100%; height: 100%; overflow: visible; }
 
   /* Die Leder-Innenseite des Deckels (erste Ansicht, links) */
   .cover-inner {
@@ -285,8 +287,8 @@
   .grid {
     position: relative; z-index: 2;          /* über page-bg-layer (0) und Rahmen (1) */
     display: grid;
-    grid-template-columns: repeat(3, var(--card-w));
-    grid-template-rows: repeat(3, var(--card-h));
+    grid-template-columns: repeat(var(--cols, 3), var(--card-w));
+    grid-template-rows: repeat(var(--rows, 3), var(--card-h));
     gap: var(--grid-gap);
     justify-content: center;
   }
@@ -348,6 +350,33 @@
   .slot.filled:hover .dup { display: flex; }
   .slot .dup:hover { background: var(--gold); color: #1a130a; }
 
+  /* Preis-Knopf (unten links, beim Hovern) */
+  .slot .price-btn {
+    position: absolute; bottom: 5px; left: 5px;
+    min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px;
+    background: rgba(0,0,0,.62); color: #fff; border: 0;
+    font-size: 13px; line-height: 1; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    pointer-events: auto; z-index: 4;
+  }
+  .slot.filled:hover .price-btn { display: flex; }
+  .slot .price-btn:hover { background: var(--gold); color: #1a130a; }
+  /* Preis-Badge (immer sichtbar, wenn Preis gesetzt) unten mittig */
+  .slot .price-badge {
+    position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,.72); color: #ffe9a8; border: 1px solid rgba(201,162,75,.5);
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+    z-index: 3; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,.4);
+  }
+  /* Seitensumme unten am Blatt */
+  .page-sum {
+    position: absolute; bottom: 6px; right: 12px; z-index: 3;
+    background: rgba(20,14,9,.82); color: #ffe9a8;
+    border: 1px solid rgba(201,162,75,.5);
+    font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 10px;
+    box-shadow: 0 1px 5px rgba(0,0,0,.4); letter-spacing: .3px;
+  }
+
   /* ---------- Markier-Modus: farbige Ränder + Umschalt-Knopf ---------- */
   /* Nur sichtbar, wenn der Modus aktiv ist. Sonst KEINE Spuren am Design. */
   .slot.mark.mark-owned   { box-shadow: 0 0 0 3px #36b34a, 0 0 12px rgba(54,179,74,.5); border-color: #36b34a; }
@@ -396,12 +425,55 @@
   }
   .bench .slot .plus { font-size: 20px; }
 
-  /* ---------- Seitliche Blätter-Pfeile (neben dem Ordner) ---------- */
+  /* ---------- Vorschau-Leiste aller Seiten (rechts) ---------- */
+  .preview-rail {
+    position: fixed; top: 56px; right: 0; bottom: 52px; width: 132px;
+    background: rgba(20,14,9,.78); backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(255,255,255,.08);
+    z-index: 46; display: flex; flex-direction: column;
+  }
+  .preview-rail-title {
+    font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+    opacity: .6; text-align: center; padding: 8px 0 6px;
+  }
+  .preview-list { flex: 1; overflow-y: auto; padding: 4px 10px 12px; }
+  /* ein Doppelseiten-Vorschaupaar */
+  .pv-spread {
+    display: flex; gap: 3px; margin-bottom: 8px; cursor: pointer;
+    border: 2px solid transparent; border-radius: 6px; padding: 3px;
+    background: rgba(255,255,255,.04); transition: border-color .15s, background .15s;
+  }
+  .pv-spread:hover { background: rgba(255,255,255,.1); }
+  .pv-spread.active { border-color: var(--gold); }
+  .pv-spread.dragging { opacity: .4; }
+  .pv-spread.dragover { border-color: var(--accent); }
+  .pv-page {
+    flex: 1; aspect-ratio: 1 / 1; border-radius: 3px;
+    background-size: cover; background-position: center;
+    display: grid; grid-template-columns: repeat(var(--cols,3),1fr); grid-template-rows: repeat(var(--rows,3),1fr);
+    gap: 1px; padding: 3px; overflow: hidden;
+  }
+  .pv-page.cover { background: radial-gradient(120% 130% at 30% 20%, #6a4324, #3a230f); }
+  .pv-cell { background: rgba(255,255,255,.12); border-radius: 1px; background-size: cover; background-position: center; }
+  .pv-del {
+    position: absolute; top: 2px; right: 2px; z-index: 5;
+    width: 18px; height: 18px; border-radius: 50%; border: 0;
+    background: rgba(0,0,0,.6); color: #fff; font-size: 11px; line-height: 1;
+    cursor: pointer; display: none; align-items: center; justify-content: center;
+  }
+  .pv-page:hover .pv-del { display: flex; }
+  .pv-del:hover { background: var(--accent); }
+  .pv-label { font-size: 9px; opacity: .55; text-align: center; margin-top: -4px; margin-bottom: 6px; }
+
+  /* ---------- Ordner-Frame + seitliche Blätter-Pfeile ---------- */
+  .stage-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .binder-frame { position: relative; display: inline-flex; }
+
   .side-nav {
-    position: fixed; top: 50%; transform: translateY(-50%);
-    width: 54px; height: 54px; border-radius: 50%;
-    background: rgba(20,14,9,.72); color: #f4eede;
-    border: 1px solid rgba(201,162,75,.4);
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(20,14,9,.78); color: #f4eede;
+    border: 1px solid rgba(201,162,75,.45);
     font-size: 24px; cursor: pointer; z-index: 45;
     display: flex; align-items: center; justify-content: center;
     backdrop-filter: blur(6px);
@@ -410,8 +482,9 @@
   }
   .side-nav:hover:not(:disabled) { background: var(--accent); transform: translateY(-50%) scale(1.08); }
   .side-nav:disabled { opacity: .25; cursor: not-allowed; }
-  .side-nav.prev { left: 18px; }
-  .side-nav.next { right: 18px; }
+  /* direkt am Ordnerrand (knapp außerhalb des Leder-Korpus) */
+  .side-nav.prev { left: -26px; }
+  .side-nav.next { right: -26px; }
 
   /* ---------- Pagination unten (fix) ---------- */
   .pager {
@@ -470,6 +543,66 @@
 
   @media (prefers-reduced-motion: reduce) { .flip { animation: none !important; display: none !important; } }
   .hidden { display: none; }
+  /* ===================== STARTSCREEN ===================== */
+  .startscreen {
+    position: fixed; inset: 0; z-index: 300;
+    background:
+      radial-gradient(120% 120% at 50% 0%, #2c2018 0%, #1a120b 60%, #0d0907 100%);
+    display: flex; align-items: center; justify-content: center; padding: 30px;
+    overflow-y: auto;
+  }
+  .startscreen.hidden { display: none; }
+  .start-card {
+    width: 100%; max-width: 680px;
+    background: rgba(28,20,12,.7); border: 1px solid rgba(201,162,75,.3);
+    border-radius: 18px; padding: 28px 30px;
+    box-shadow: 0 30px 70px rgba(0,0,0,.6); margin: auto;
+  }
+  .start-brand { display: flex; align-items: center; gap: 12px; font-size: 26px; font-weight: 800; letter-spacing: .5px; }
+  .start-brand .emblem { width: 34px; height: 34px; border-radius: 9px; font-size: 13px; }
+  .start-sub { opacity: .65; margin: 8px 0 22px; font-size: 14px; }
+  .start-section { margin-bottom: 22px; }
+  .start-h { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: .6; margin-bottom: 12px; }
+
+  .format-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 10px; }
+  .format-opt {
+    border: 2px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
+    border-radius: 12px; padding: 12px; cursor: pointer; text-align: center;
+    transition: border-color .15s, background .15s;
+  }
+  .format-opt:hover { background: rgba(255,255,255,.09); }
+  .format-opt.active { border-color: var(--gold); background: rgba(201,162,75,.12); }
+  .format-mini { display: grid; gap: 2px; width: 46px; margin: 0 auto 8px; }
+  .format-mini span { background: rgba(255,255,255,.35); border-radius: 1px; aspect-ratio: 6.3/8.8; }
+  .format-opt.active .format-mini span { background: var(--gold); }
+  .format-label { font-size: 13px; font-weight: 700; }
+  .format-cap { font-size: 10px; opacity: .55; margin-top: 2px; }
+
+  .start-namerow { display: flex; gap: 10px; margin-top: 14px; }
+  .start-input {
+    flex: 1; padding: 10px 12px; border-radius: 9px;
+    border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: #f4eede; font-size: 14px;
+  }
+  .start-input:focus { outline: 2px solid var(--gold); }
+
+  .collection-list { display: flex; flex-direction: column; gap: 8px; }
+  .collection-empty { opacity: .5; font-size: 13px; font-style: italic; }
+  .collection-item {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: background .15s;
+  }
+  .collection-item:hover { background: rgba(255,255,255,.1); }
+  .collection-item .ci-name { flex: 1; font-weight: 600; font-size: 14px; }
+  .collection-item .ci-meta { font-size: 11px; opacity: .55; }
+  .collection-item .ci-del {
+    width: 28px; height: 28px; border-radius: 50%; border: 0;
+    background: rgba(0,0,0,.4); color: #fff; cursor: pointer; font-size: 14px;
+  }
+  .collection-item .ci-del:hover { background: var(--accent); }
+
+  /* Home-Button in der Toolbar */
+  .home-btn { font-size: 16px; }
 </style>
 </head>
 <body>
@@ -477,35 +610,80 @@
   <!-- ===================== TOOLBAR ===================== -->
   <div class="toolbar">
     <div class="brand">
+      <button class="btn home-btn" id="homeBtn" title="Startseite / neue Collection">🏠</button>
       <span class="emblem">TCG</span>
-      TCG&nbsp;Binder <small>· dein digitaler Ordner</small>
+      TCG&nbsp;Binder
     </div>
+
+    <!-- Ansicht-/Umschalter (links gruppiert) -->
+    <div class="toolbar-group">
+      <div class="seg" title="Sprache / Language">
+        <button id="langDE">DE</button>
+        <button id="langEN">EN</button>
+      </div>
+      <div class="seg" title="Wie Bilder ins Kartenfeld eingepasst werden">
+        <button id="fitCover" class="active">Füllen</button>
+        <button id="fitContain">Ganz zeigen</button>
+      </div>
+      <div class="seg" title="Währung für Preise">
+        <button id="curEUR" class="active">€</button>
+        <button id="curUSD">$</button>
+      </div>
+      <div class="seg" title="Karten farbig markieren (grün = habe ich, rot = fehlt)">
+        <button id="markOff" class="active">Markieren aus</button>
+        <button id="markOn">an</button>
+      </div>
+      <div class="seg" title="Preise + Gesamtsumme im Bild-Export anzeigen">
+        <button id="exportPricesOff" class="active">Preise im Export aus</button>
+        <button id="exportPricesOn">an</button>
+      </div>
+    </div>
+
     <div class="spacer"></div>
-    <div class="seg" title="Wie Bilder ins Kartenfeld eingepasst werden">
-      <button id="fitCover" class="active">Füllen</button>
-      <button id="fitContain">Ganz zeigen</button>
+
+    <!-- Aktionen (rechts) -->
+    <div class="toolbar-group">
+      <div class="menu-wrap">
+        <button class="btn" id="moreBtn" title="Weitere Optionen">⚙ Mehr ▾</button>
+        <div class="menu" id="moreMenu">
+          <button class="menu-item" id="appBgBtn">🌄 Hintergrund ändern</button>
+          <button class="menu-item" id="appBgResetBtn">↺ Hintergrund zurücksetzen</button>
+          <div class="menu-sep"></div>
+          <button class="menu-item" id="exportLogoBtn">🖼 Export-Logo wählen</button>
+          <button class="menu-item" id="exportNameBtn">✎ Export-Name / @Channel</button>
+          <button class="menu-item" id="exportLogoClearBtn">✕ Logo/Name entfernen</button>
+        </div>
+      </div>
+      <button class="btn" id="importBtn">Importieren</button>
+      <button class="btn primary" id="exportBtn">Exportieren</button>
     </div>
-    <button class="btn" id="markBtn" title="Karten als 'habe ich' (grün) oder 'fehlt noch' (rot) markieren">✓ Markieren</button>
-    <button class="btn" id="appBgBtn" title="Hintergrund hinter dem Ordner ändern">🌄 Hintergrund</button>
-    <button class="btn" id="appBgResetBtn" title="Hintergrund auf Standard-Holz zurücksetzen">↺</button>
-    <button class="btn" id="importBtn">Importieren</button>
-    <button class="btn primary" id="exportBtn">Exportieren</button>
   </div>
+
+  <input type="file" id="exportLogoFile" class="hidden" accept="image/*">
 
   <!-- ===================== BÜHNE ===================== -->
   <div class="stage">
-    <div class="binder" id="binder"><!-- per JS --></div>
+    <div class="stage-inner" id="stageInner">
+      <!-- Ordner mit direkt anliegenden Blätterpfeilen -->
+      <div class="binder-frame" id="binderFrame">
+        <button class="side-nav prev" id="sideNavPrev" title="Zurück blättern" aria-label="Zurück">‹</button>
+        <div class="binder" id="binder"><!-- per JS --></div>
+        <button class="side-nav next" id="sideNavNext" title="Vor blättern" aria-label="Vor">›</button>
+      </div>
 
-    <!-- Ablage-Bank -->
-    <div class="bench" id="bench">
-      <div class="bench-title">Ablage · zieh Karten hierher, blättere, leg sie woanders ab</div>
-      <div class="bench-row" id="benchRow"><!-- per JS --></div>
+      <!-- Ablage-Bank -->
+      <div class="bench" id="bench">
+        <div class="bench-title">Ablage</div>
+        <div class="bench-row" id="benchRow"><!-- per JS --></div>
+      </div>
     </div>
   </div>
 
-  <!-- Seitliche Blätter-Pfeile -->
-  <button class="side-nav prev" id="sideNavPrev" title="Zurück blättern" aria-label="Zurück">‹</button>
-  <button class="side-nav next" id="sideNavNext" title="Vor blättern" aria-label="Vor">›</button>
+  <!-- Vorschau-Leiste aller Seiten (rechts, volle Höhe) -->
+  <div class="preview-rail" id="previewRail">
+    <div class="preview-rail-title">Seiten</div>
+    <div class="preview-list" id="previewList"><!-- per JS --></div>
+  </div>
 
   <!-- ===================== PAGINATION ===================== -->
   <div class="pager">
@@ -530,23 +708,195 @@
 
   <div class="toast" id="toast"></div>
 
+  <!-- ===================== STARTSCREEN ===================== -->
+  <div class="startscreen" id="startScreen">
+    <div class="start-card">
+      <div class="start-brand"><span class="emblem">TCG</span> TCG Binder</div>
+      <div class="start-sub" id="startSub">Neue Collection anlegen oder eine bestehende öffnen</div>
+
+      <div class="start-section">
+        <div class="start-h" id="startNewH">Neue Collection · Format wählen</div>
+        <div class="format-grid" id="formatGrid"><!-- per JS --></div>
+        <div class="start-namerow">
+          <input type="text" id="newColName" class="start-input" placeholder="Name (optional)">
+          <button class="btn primary" id="startCreateBtn">Erstellen</button>
+        </div>
+      </div>
+
+      <div class="start-section">
+        <div class="start-h" id="startOpenH">Gespeicherte Collections</div>
+        <div class="collection-list" id="collectionList"><!-- per JS --></div>
+      </div>
+
+      <div class="start-section">
+        <button class="btn" id="startImportBtn">📂 Aus Datei importieren (.json)</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 /* ============================================================================
-   DATEN-MODELL & ZUSTAND
+   INTERNATIONALISIERUNG (i18n)
    ----------------------------------------------------------------------------
-   slots[]    : flaches Array aller Ordner-Felder. 9 pro Seite.
-                Eintrag = null (leer) oder Base64-Bild.
-   bench[]    : 8 Ablageplätze (gleiche Struktur wie ein Slot).
-   pageBg{}   : Objekt  { pageIndex: base64 }  — Hintergrundbild PRO Seite.
-   pages      : Anzahl Karten-Seiten (jeweils 3x3). Immer gerade, mind. 2.
-   spread     : aktueller Blick. 0 = Deckel + Seite 1.
-   fit        : "cover" | "contain".
-   coverTitle / coverSub : editierbarer Text auf dem Deckel.
+   Alle sichtbaren Texte liegen in TEXTS.de / TEXTS.en. Im Code wird über
+   t("schluessel") darauf zugegriffen. "TCG Binder" und "My Collection"
+   bleiben bewusst fest englisch (Markenname / Standardtitel).
+   ========================================================================== */
+const TEXTS = {
+  de: {
+    brandSub: "· dein digitaler Ordner",
+    fitCover: "Füllen", fitContain: "Ganz zeigen",
+    markOff: "Markieren aus", markOn: "an",
+    pricesExportOff: "Preise im Export aus", pricesExportOn: "an",
+    more: "⚙ Mehr ▾",
+    bgChange: "🌄 Hintergrund ändern", bgReset: "↺ Hintergrund zurücksetzen",
+    logoChoose: "🖼 Export-Logo wählen", nameChoose: "✎ Export-Name / @Channel",
+    logoClear: "✕ Logo/Name entfernen",
+    importBtn: "Importieren", exportBtn: "Exportieren",
+    bench: "Ablage",
+    pagesTitle: "Seiten",
+    prev: "‹ Zurück", next: "Vor ›", addPage: "+ Seite",
+    pageColView: "Klicken, um zu einer Seite zu springen",
+    cover: "Deckel", page: "Seite", backside: "Rückseite",
+    coverHint: "✎ Text anklicken zum Ändern", coverSubtitle: "Sammler-Ordner",
+    delCard: "Karte entfernen", dupCard: "Karte duplizieren", setPrice: "Preis eintragen",
+    markOwnedTitle: "Als 'fehlt noch' markieren", markMissingTitle: "Als 'habe ich' markieren",
+    pageBg: "🖼 Bild", pageBgChange: "🖼 Bild ändern", pageBgClear: "✕ Bild", pageExport: "📸 Export",
+    pageBgTitle: "Hintergrundbild dieser Seite setzen",
+    pageBgClearTitle: "Hintergrundbild dieser Seite entfernen",
+    pageExportTitle: "Diese Seite als Bild exportieren",
+    pageSumTitle: "Summe der Kartenpreise dieser Seite",
+    navPrev: "Zurück blättern", navNext: "Vor blättern",
+    jumpPlaceholder: "Seite",
+    // Toasts / Prompts
+    pricemsg: (cur) => "Preis dieser Karte in " + cur + "\n(leer lassen zum Entfernen)",
+    invalidPrice: "Ungültiger Preis.",
+    pageSumPrefix: "Σ ",
+    dupToast: (n) => "Karte dupliziert (Seite " + n + ").",
+    dupBench: "Karte auf die Ablage dupliziert.",
+    dupNewPage: "Neue Seite angelegt – Karte dupliziert.",
+    pagesAdded: "Zwei Seiten hinzugefügt.",
+    jumpTo: (p) => "Zu Seite " + p + " gesprungen.",
+    spreadSwapped: "Doppelseiten getauscht.",
+    pasteBench: "Bild aus Zwischenablage in die Ablage eingefügt.",
+    pasteSlot: "Bild eingefügt (Ordner).", pasteNewPage: "Bild eingefügt – neue Seite.",
+    bgChanged: "Hintergrund geändert.",
+    bgIsDefault: "Hintergrund ist bereits der Standard.",
+    bgResetDone: "Hintergrund auf Standard-Holz zurückgesetzt.",
+    logoSet: "Export-Logo gesetzt. Erscheint oben im Bild-Export.",
+    namePrompt: "Name / @Channel fürs Export-Wasserzeichen oben:\n(leer lassen zum Entfernen)",
+    nameSet: "Export-Name gesetzt.", nameCleared: "Export-Name entfernt.",
+    logoNameCleared: "Logo/Name fürs Export entfernt.",
+    exportJson: "Ordner als JSON exportiert.", imported: "Ordner importiert.",
+    importFail: "Import fehlgeschlagen: keine gültige Binder-Datei.",
+    exportImg: "Seitenbild (1080×1350) exportiert – alle Karten enthalten.",
+    pricesOnToast: "Preise erscheinen im Bild-Export.",
+    pricesOffToast: "Preise werden im Export ausgeblendet.",
+    markOnToast: "Markier-Modus an: grün = habe ich, rot = fehlt noch.",
+    markOffToast: "Markier-Modus aus.",
+    curEUR: "€ (EUR)", curUSD: "$ (USD)",
+    storageFull: "Speicher voll – exportiere als JSON, um nichts zu verlieren.",
+    totalLabel: "Gesamt: ",
+    startSub: "Neue Collection anlegen oder eine bestehende öffnen",
+    startNewH: "Neue Collection · Format wählen",
+    startOpenH: "Gespeicherte Collections",
+    startCreate: "Erstellen", startImport: "📂 Aus Datei importieren (.json)",
+    namePlaceholder: "Name (optional)",
+    noCollections: "Noch keine gespeicherten Collections.",
+    deleteColConfirm: (n) => "Collection \"" + n + "\" wirklich löschen?",
+    homeConfirm: "Aktuelle Collection wurde gespeichert. Zur Startseite?",
+    defaultColName: "Meine Collection",
+    pageDeleteConfirm: "Diese Seite mit allen Karten löschen?",
+    pageDeleted: "Seite gelöscht.",
+    formatCap: (n) => n + " Karten/Seite",
+    editHint: "Klicken zum Bearbeiten",
+  },
+  en: {
+    brandSub: "· your digital binder",
+    fitCover: "Fill", fitContain: "Show all",
+    markOff: "Marking off", markOn: "on",
+    pricesExportOff: "Prices in export off", pricesExportOn: "on",
+    more: "⚙ More ▾",
+    bgChange: "🌄 Change background", bgReset: "↺ Reset background",
+    logoChoose: "🖼 Choose export logo", nameChoose: "✎ Export name / @channel",
+    logoClear: "✕ Remove logo/name",
+    importBtn: "Import", exportBtn: "Export",
+    bench: "Tray",
+    pagesTitle: "Pages",
+    prev: "‹ Back", next: "Next ›", addPage: "+ Page",
+    pageColView: "Click to jump to a page",
+    cover: "Cover", page: "Page", backside: "Back",
+    coverHint: "✎ Click text to edit", coverSubtitle: "Collector's binder",
+    delCard: "Remove card", dupCard: "Duplicate card", setPrice: "Set price",
+    markOwnedTitle: "Mark as 'missing'", markMissingTitle: "Mark as 'owned'",
+    pageBg: "🖼 Image", pageBgChange: "🖼 Change image", pageBgClear: "✕ Image", pageExport: "📸 Export",
+    pageBgTitle: "Set background image for this page",
+    pageBgClearTitle: "Remove background image of this page",
+    pageExportTitle: "Export this page as image",
+    pageSumTitle: "Sum of card prices on this page",
+    navPrev: "Page back", navNext: "Page forward",
+    jumpPlaceholder: "Page",
+    pricemsg: (cur) => "Price of this card in " + cur + "\n(leave empty to remove)",
+    invalidPrice: "Invalid price.",
+    pageSumPrefix: "Σ ",
+    dupToast: (n) => "Card duplicated (page " + n + ").",
+    dupBench: "Card duplicated to the tray.",
+    dupNewPage: "New page created – card duplicated.",
+    pagesAdded: "Two pages added.",
+    jumpTo: (p) => "Jumped to page " + p + ".",
+    spreadSwapped: "Double pages swapped.",
+    pasteBench: "Image pasted from clipboard into the tray.",
+    pasteSlot: "Image pasted (binder).", pasteNewPage: "Image pasted – new page.",
+    bgChanged: "Background changed.",
+    bgIsDefault: "Background is already the default.",
+    bgResetDone: "Background reset to default wood.",
+    logoSet: "Export logo set. Appears at the top of the image export.",
+    namePrompt: "Name / @channel for the export watermark at the top:\n(leave empty to remove)",
+    nameSet: "Export name set.", nameCleared: "Export name removed.",
+    logoNameCleared: "Logo/name for export removed.",
+    exportJson: "Binder exported as JSON.", imported: "Binder imported.",
+    importFail: "Import failed: not a valid binder file.",
+    exportImg: "Page image (1080×1350) exported – all cards included.",
+    pricesOnToast: "Prices will appear in the image export.",
+    pricesOffToast: "Prices are hidden in the export.",
+    markOnToast: "Marking on: green = owned, red = missing.",
+    markOffToast: "Marking off.",
+    curEUR: "€ (EUR)", curUSD: "$ (USD)",
+    storageFull: "Storage full – export as JSON so nothing is lost.",
+    totalLabel: "Total: ",
+    startSub: "Create a new collection or open an existing one",
+    startNewH: "New collection · choose format",
+    startOpenH: "Saved collections",
+    startCreate: "Create", startImport: "📂 Import from file (.json)",
+    namePlaceholder: "Name (optional)",
+    noCollections: "No saved collections yet.",
+    deleteColConfirm: (n) => "Really delete collection \"" + n + "\"?",
+    homeConfirm: "Current collection was saved. Go to start screen?",
+    defaultColName: "My Collection",
+    pageDeleteConfirm: "Delete this page and all its cards?",
+    pageDeleted: "Page deleted.",
+    formatCap: (n) => n + " cards/page",
+    editHint: "Click to edit",
+  }
+};
 
-   LOCATION-IDs für Drag&Drop:  "slot:<n>"  oder  "bench:<n>"
+let lang = "de";  // wird beim Start nach gespeicherter Wahl / Browsersprache gesetzt
+function t(key, ...args) {
+  const v = (TEXTS[lang] && TEXTS[lang][key]) ?? (TEXTS.de[key]);
+  return typeof v === "function" ? v(...args) : v;
+}
+function detectLang() {
+  const saved = (() => { try { return JSON.parse(localStorage.getItem("pokemon-binder-v2") || "{}").lang; } catch(e){ return null; } })();
+  if (saved === "de" || saved === "en") return saved;
+  const nav = (navigator.language || "en").toLowerCase();
+  return nav.startsWith("de") ? "de" : "en";
+}
+
+/* ============================================================================
+   DATEN-MODELL & ZUSTAND
    ========================================================================== */
 
-const SLOTS_PER_PAGE = 9;
+let SLOTS_PER_PAGE = 9;   // wird aus state.cols*state.rows aktualisiert
 const BENCH_SIZE = 8;
 const STORAGE_KEY = "pokemon-binder-v2";
 
@@ -558,42 +908,130 @@ let state = {
   spread: 0,
   fit: "cover",
   coverTitle: "My Collection",
-  coverSub: "Sammler-Ordner",
+  coverSub: t("coverSubtitle"),
   // Besitz-Status pro Ordner-Feld: { "<index>": "missing" }.
   // Nicht eingetragen = "owned" (Standard, grün). Nur "missing" wird gespeichert.
   owned: {},
   // Gesamthintergrund hinter dem Ordner: null = Standard-Holz, sonst Base64-Bild.
   appBg: null,
+  // Preis pro Ordner-Feld: { "<index>": 12.5 }. Nur gesetzte Preise werden gespeichert.
+  prices: {},
+  currency: "EUR",           // "EUR" oder "USD"
+  showPricesInExport: false, // ob Preise im Bild-Export erscheinen
+  exportLogo: null,          // Base64-Logo fürs Export-Wasserzeichen (global)
+  exportName: "",            // Text-Wasserzeichen (z. B. @channel), global
+  lang: "de",                // Sprache der Oberfläche ("de" | "en")
 };
 
 // Markier-Modus (nur Ansicht, nicht persistiert): zeigt grüne/rote Ränder
 let markMode = false;
 
-/* ---- Laden ---- */
-function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) state = Object.assign(state, JSON.parse(raw));
-  } catch (e) { console.warn("Konnte Stand nicht laden:", e); }
-  normalize();
+/* ============================================================================
+   COLLECTION-VERWALTUNG (mehrere Ordner)
+   ----------------------------------------------------------------------------
+   - INDEX_KEY: Liste aller Collections [{id, name, format, updatedAt}]
+   - COL_PREFIX + id: der vollständige Zustand einer Collection
+   - LAST_KEY: id der zuletzt geöffneten Collection
+   - LANG_KEY: zuletzt gewählte Sprache (global, collection-übergreifend)
+   ========================================================================== */
+const INDEX_KEY = "tcg-binder-collections";
+const COL_PREFIX = "tcg-binder-col:";
+const LAST_KEY = "tcg-binder-last";
+const LANG_KEY = "tcg-binder-lang";
+
+let currentId = null;   // id der aktuell geöffneten Collection (null = keine)
+
+function loadIndex() {
+  try { return JSON.parse(localStorage.getItem(INDEX_KEY) || "[]"); }
+  catch (e) { return []; }
 }
+function saveIndex(list) { localStorage.setItem(INDEX_KEY, JSON.stringify(list)); }
+
+function newId() { return "c" + Date.now() + Math.floor(Math.random() * 1000); }
+
+/* Standardzustand für eine neue Collection mit gegebenem Format */
+function freshState(cols, rows, name) {
+  const per = cols * rows;
+  return {
+    slots: new Array(per * 6).fill(null),
+    bench: new Array(BENCH_SIZE).fill(null),
+    pageBg: {}, pages: 6, spread: 0, fit: "cover",
+    coverTitle: "My Collection", coverSub: t("coverSubtitle"),
+    owned: {}, appBg: null, prices: {}, currency: "EUR",
+    showPricesInExport: false, exportLogo: null, exportName: "",
+    lang: lang, cols: cols, rows: rows, name: name || "Collection",
+  };
+}
+
+/* Aktuelle Collection speichern (Zustand + Index aktualisieren) */
+function save() {
+  if (!currentId) return;
+  try {
+    state.lang = lang;
+    localStorage.setItem(COL_PREFIX + currentId, JSON.stringify(state));
+    localStorage.setItem(LAST_KEY, currentId);
+    localStorage.setItem(LANG_KEY, lang);
+    // Index aktualisieren
+    const list = loadIndex();
+    const entry = { id: currentId, name: state.name || "Collection",
+                    format: (state.cols || 3) + "×" + (state.rows || 3),
+                    updatedAt: Date.now() };
+    const i = list.findIndex(c => c.id === currentId);
+    if (i >= 0) list[i] = entry; else list.push(entry);
+    saveIndex(list);
+  } catch (e) { toast(t("storageFull")); console.warn(e); }
+}
+
+/* Eine Collection per id öffnen */
+function openCollection(id) {
+  try {
+    const raw = localStorage.getItem(COL_PREFIX + id);
+    if (!raw) { toast(t("importFail")); return false; }
+    state = JSON.parse(raw);
+    currentId = id;
+    normalize();
+    if (state.lang === "de" || state.lang === "en") setLang(state.lang, false);
+    hideStartScreen();
+    applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyMarkSeg();
+    render();
+    return true;
+  } catch (e) { toast(t("importFail")); console.warn(e); return false; }
+}
+
+/* Neue Collection anlegen und öffnen */
+function createCollection(cols, rows, name) {
+  currentId = newId();
+  state = freshState(cols, rows, name);
+  normalize();
+  save();
+  hideStartScreen();
+  applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyMarkSeg();
+  render();
+}
+
+/* Eine Collection löschen */
+function deleteCollection(id) {
+  localStorage.removeItem(COL_PREFIX + id);
+  const list = loadIndex().filter(c => c.id !== id);
+  saveIndex(list);
+  if (currentId === id) currentId = null;
+}
+
 function normalize() {
-  // slots an Seitenzahl anpassen
-  const need = state.pages * SLOTS_PER_PAGE;
+  if (!state.cols) state.cols = 3;
+  if (!state.rows) state.rows = 3;
+  SLOTS_PER_PAGE = state.cols * state.rows;   // global aktualisieren
+  const per = SLOTS_PER_PAGE;
+  const need = state.pages * per;
   while (state.slots.length < need) state.slots.push(null);
   state.slots.length = need;
-  // bench-Größe sichern
   if (!Array.isArray(state.bench)) state.bench = [];
   while (state.bench.length < BENCH_SIZE) state.bench.push(null);
   state.bench.length = BENCH_SIZE;
   if (!state.pageBg || typeof state.pageBg !== "object") state.pageBg = {};
   if (!state.owned || typeof state.owned !== "object") state.owned = {};
-}
-
-/* ---- Speichern ---- */
-function save() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  catch (e) { toast("Speicher voll – exportiere als JSON, um nichts zu verlieren."); console.warn(e); }
+  if (!state.prices || typeof state.prices !== "object") state.prices = {};
+  if (state.currency !== "USD" && state.currency !== "EUR") state.currency = "EUR";
 }
 
 /* ---- Karten-Zugriff über LOCATION-ID ---- */
@@ -604,6 +1042,43 @@ function getCard(loc) {
 function setCard(loc, val) {
   const [kind, n] = loc.split(":"); const i = +n;
   if (kind === "bench") state.bench[i] = val; else state.slots[i] = val;
+}
+
+/* ---- Preis-Helfer ---- */
+function currencySymbol() { return state.currency === "USD" ? "$" : "€"; }
+function formatPrice(v) {
+  if (v == null || isNaN(v)) return "";
+  const s = Number(v).toLocaleString(state.currency === "USD" ? "en-US" : "de-DE",
+    { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return state.currency === "USD" ? "$" + s : s + " €";
+}
+/* Summe aller Kartenpreise einer Karten-Seite */
+function pageSum(pageIndex) {
+  const base = pageIndex * SLOTS_PER_PAGE;
+  let sum = 0, any = false;
+  for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+    const p = state.prices[base + i];
+    if (p != null && !isNaN(p)) { sum += Number(p); any = true; }
+  }
+  return any ? sum : null;
+}
+
+/* Preis einer Ordner-Karte eintragen/ändern (leer lässt den Preis löschen) */
+function editPrice(slotIndex) {
+  const cur = state.prices[slotIndex];
+  const input = prompt(
+    t("pricemsg", state.currency === "USD" ? "USD ($)" : "EUR (€)"),
+    cur != null ? String(cur) : ""
+  );
+  if (input === null) return;                    // abgebrochen
+  const trimmed = input.trim().replace(",", "."); // Komma als Dezimaltrennzeichen erlauben
+  if (trimmed === "") { delete state.prices[slotIndex]; }
+  else {
+    const v = parseFloat(trimmed);
+    if (isNaN(v) || v < 0) { toast(t("invalidPrice")); return; }
+    state.prices[slotIndex] = Math.round(v * 100) / 100;
+  }
+  save(); render();
 }
 
 /* Karte duplizieren: kopiert das Bild in den nächsten freien Platz.
@@ -619,18 +1094,18 @@ function duplicateCard(loc) {
   // 1) freier Ordner-Slot ab Quelle, dann umlaufend vom Anfang
   for (let k = 0; k < total; k++) {
     const idx = (startIdx + k) % total;
-    if (!state.slots[idx]) { state.slots[idx] = img; save(); render(); toast("Karte dupliziert (Seite " + (Math.floor(idx / SLOTS_PER_PAGE) + 1) + ")."); return; }
+    if (!state.slots[idx]) { state.slots[idx] = img; save(); render(); toast(t("dupToast", Math.floor(idx / SLOTS_PER_PAGE) + 1)); return; }
   }
   // 2) freier Bank-Platz
   for (let i = 0; i < BENCH_SIZE; i++) {
-    if (!state.bench[i]) { state.bench[i] = img; save(); render(); toast("Karte auf die Ablage dupliziert."); return; }
+    if (!state.bench[i]) { state.bench[i] = img; save(); render(); toast(t("dupBench")); return; }
   }
   // 3) alles voll -> zwei neue Seiten, Kopie auf erstes neues Feld
   const firstNew = total;
   state.pages += 2; normalize();
   state.slots[firstNew] = img;
   save(); render();
-  toast("Neue Seite angelegt – Karte dupliziert.");
+  toast(t("dupNewPage"));
 }
 
 /* ============================================================================
@@ -666,6 +1141,7 @@ function rightPageIndexForSpread(spread) { return spread === 0 ? 0  : spread * 2
 
 function render() {
   normalize();
+  applyFormatVars();
   binder.innerHTML = "";
 
   const leftPage  = leftPageIndexForSpread(state.spread);
@@ -673,20 +1149,41 @@ function render() {
 
   // linke Hälfte
   binder.appendChild(leftPage === -1 ? makeCoverInner("left") : makePage(leftPage, "left"));
-  // Falz mit Ringmechanik (6 offene Metallringe wie im echten Ordner)
+  // Mittelfalz wie bei einem gebundenen Buch (keine Ringe)
   const spine = document.createElement("div"); spine.className = "spine";
-  for (let i = 0; i < 6; i++) {
-    const ring = document.createElement("div"); ring.className = "ring";
-    ring.innerHTML = ringSVG();
-    spine.appendChild(ring);
-  }
   binder.appendChild(spine);
   // rechte Hälfte
   binder.appendChild(rightPage < state.pages ? makePage(rightPage, "right") : makeCoverInner("right"));
 
   renderBench();
+  renderPreviewRail();
   updatePager();
   applyFitClass();
+  fitBinder();
+}
+
+/* Setzt CSS-Variablen für das aktuelle Rasterformat (Spalten/Zeilen) und
+   berechnet die Kartengröße so, dass das Raster ins quadratische Blatt passt.
+   Das Kartenseitenverhältnis (6,3:8,8) bleibt dabei immer erhalten. */
+function applyFormatVars() {
+  const cols = state.cols || 3, rows = state.rows || 3;
+  const root = document.documentElement;
+  root.style.setProperty("--cols", cols);
+  root.style.setProperty("--rows", rows);
+
+  const PAGE = 750;          // Blattgröße in px (entspricht --page-size)
+  const PAD = 40;            // Rand ums Raster
+  const GAP = 12;            // Lücke zwischen Karten
+  const avail = PAGE - PAD * 2;
+  const RATIO = 8.8 / 6.3;   // Höhe/Breite einer Karte
+  // Kartenbreite, begrenzt durch Breite UND Höhe
+  const wByWidth = (avail - GAP * (cols - 1)) / cols;
+  const hByHeight = (avail - GAP * (rows - 1)) / rows;
+  let cardW = Math.min(wByWidth, hByHeight / RATIO);
+  let cardH = cardW * RATIO;
+  root.style.setProperty("--card-w", cardW + "px");
+  root.style.setProperty("--card-h", cardH + "px");
+  root.style.setProperty("--grid-gap", GAP + "px");
 }
 
 /* Leder-Innenseite des Deckels mit editierbarem Text */
@@ -704,7 +1201,7 @@ function makeCoverInner(sideClass) {
     const h2 = document.createElement("h2");
     h2.className = "editable"; h2.contentEditable = "true"; h2.spellcheck = false;
     h2.textContent = state.coverTitle || "";
-    h2.title = "Klicken zum Bearbeiten";
+    h2.title = t("editHint");
     h2.addEventListener("blur", () => { state.coverTitle = h2.textContent.trim() || "My Collection"; save(); });
     h2.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); h2.blur(); } });
     plate.appendChild(h2);
@@ -714,50 +1211,18 @@ function makeCoverInner(sideClass) {
     const p = document.createElement("p");
     p.className = "editable"; p.contentEditable = "true"; p.spellcheck = false;
     p.textContent = state.coverSub || "";
-    p.title = "Klicken zum Bearbeiten";
+    p.title = t("editHint");
     p.addEventListener("blur", () => { state.coverSub = p.textContent.trim(); save(); });
     p.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); p.blur(); } });
     plate.appendChild(p);
 
     const hint = document.createElement("div");
-    hint.className = "cover-hint"; hint.textContent = "✎ Text anklicken zum Ändern";
+    hint.className = "cover-hint"; hint.textContent = t("coverHint");
     plate.appendChild(hint);
 
     el.appendChild(plate);
   }
   return el;
-}
-
-/* Offener Metallring als SVG. Eindeutige IDs pro Aufruf, damit mehrere
-   Gradienten auf der Seite nicht kollidieren. Die Mitte bleibt transparent,
-   sodass die dahinterliegende Lochung/Seite durchscheint. */
-let _ringSeq = 0;
-function ringSVG() {
-  const id = "r" + (++_ringSeq);
-  return `
-  <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="${id}m" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0"   stop-color="#ffffff"/>
-        <stop offset=".35" stop-color="#dfe3e7"/>
-        <stop offset=".55" stop-color="#aab0b6"/>
-        <stop offset=".8"  stop-color="#7c8187"/>
-        <stop offset="1"   stop-color="#54585d"/>
-      </linearGradient>
-      <linearGradient id="${id}h" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>
-        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    <!-- Schlagschatten auf der Seite -->
-    <circle cx="27" cy="29" r="20" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="7"/>
-    <!-- Metallreif -->
-    <circle cx="27" cy="27" r="20" fill="none" stroke="url(#${id}m)" stroke-width="6.5"/>
-    <!-- dunkle Innenkante (Tiefe des Drahts) -->
-    <circle cx="27" cy="27" r="17" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.4"/>
-    <!-- heller Glanzbogen oben -->
-    <path d="M14 18 A20 20 0 0 1 40 18" fill="none" stroke="url(#${id}h)" stroke-width="2.4" stroke-linecap="round"/>
-  </svg>`;
 }
 
 /* Lochreihe (6 gestanzte Löcher) am Falz-Rand einer Seite */
@@ -787,29 +1252,29 @@ function makePage(pageIndex, sideClass) {
   }
 
   // gestanzte Lochreihe am Falz-Rand
-  side.appendChild(makePunchStrip());
+  // gestanzte Lochreihe entfällt (Buchfalz statt Ringmechanik)
 
   // Werkzeuge: Seiten-Hintergrund setzen / entfernen / als Bild exportieren
   const tools = document.createElement("div");
   tools.className = "page-tools";
 
   const bgBtn = document.createElement("button");
-  bgBtn.textContent = bg ? "🖼 Bild ändern" : "🖼 Bild";
-  bgBtn.title = "Hintergrundbild dieser Seite setzen";
+  bgBtn.textContent = bg ? t("pageBgChange") : t("pageBg");
+  bgBtn.title = t("pageBgTitle");
   bgBtn.addEventListener("click", (e) => { e.stopPropagation(); pickPageBg(pageIndex); });
   tools.appendChild(bgBtn);
 
   if (bg) {
     const clr = document.createElement("button");
-    clr.textContent = "✕ Bild";
-    clr.title = "Hintergrundbild dieser Seite entfernen";
+    clr.textContent = t("pageBgClear");
+    clr.title = t("pageBgClearTitle");
     clr.addEventListener("click", (e) => { e.stopPropagation(); delete state.pageBg[pageIndex]; save(); render(); });
     tools.appendChild(clr);
   }
 
   const snap = document.createElement("button");
-  snap.textContent = "📸 Export";
-  snap.title = "Diese 9er-Seite als quadratisches Bild (1080×1080) exportieren";
+  snap.textContent = t("pageExport");
+  snap.title = t("pageExportTitle");
   snap.addEventListener("click", (e) => { e.stopPropagation(); exportPageImage(pageIndex); });
   tools.appendChild(snap);
 
@@ -822,6 +1287,16 @@ function makePage(pageIndex, sideClass) {
   for (let i = 0; i < SLOTS_PER_PAGE; i++) grid.appendChild(makeSlot("slot:" + (base + i)));
   side.appendChild(grid);
 
+  // Seitensumme (nur wenn mindestens ein Preis gesetzt ist)
+  const sum = pageSum(pageIndex);
+  if (sum != null) {
+    const sumEl = document.createElement("div");
+    sumEl.className = "page-sum";
+    sumEl.textContent = t("pageSumPrefix") + formatPrice(sum);
+    sumEl.title = t("pageSumTitle");
+    side.appendChild(sumEl);
+  }
+
   return side;
 }
 
@@ -830,6 +1305,194 @@ function renderBench() {
   benchRow.innerHTML = "";
   for (let i = 0; i < BENCH_SIZE; i++) benchRow.appendChild(makeSlot("bench:" + i));
 }
+
+/* ============================================================================
+   VORSCHAU-LEISTE (rechts): Mini-Abbild jeder Doppelseiten-Ansicht.
+   - Klick springt zur Ansicht.
+   - Drag&Drop tauscht zwei komplette Doppelseiten (alle 18 Karten inkl.
+     Hintergründe und Markierungen).
+   ========================================================================== */
+const previewList = document.getElementById("previewList");
+
+// Karten-Seitenindizes, die ein bestimmter Spread anzeigt (ohne Deckel/Rückseite)
+function pageIndicesForSpread(spread) {
+  const left = leftPageIndexForSpread(spread);
+  const right = rightPageIndexForSpread(spread);
+  const arr = [];
+  if (left >= 0 && left < state.pages) arr.push(left);
+  if (right >= 0 && right < state.pages) arr.push(right);
+  return arr;
+}
+
+function totalSpreads() {
+  // höchster Spread, dessen linke/rechte Seite noch existiert
+  let s = 0;
+  while (pageIndicesForSpread(s + 1).length > 0) s++;
+  return s; // 0..s
+}
+
+// Mini-Abbild einer Karten-Seite (mit Lösch-X beim Hovern)
+function makePvPage(pageIndex) {
+  const pg = document.createElement("div");
+  pg.className = "pv-page";
+  pg.style.position = "relative";
+  const bg = state.pageBg[pageIndex];
+  if (bg) pg.style.backgroundImage = `url(${bg})`;
+  const base = pageIndex * SLOTS_PER_PAGE;
+  for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+    const cell = document.createElement("div");
+    cell.className = "pv-cell";
+    const img = state.slots[base + i];
+    if (img) cell.style.backgroundImage = `url(${img})`;
+    pg.appendChild(cell);
+  }
+  // Lösch-X (nur sichtbar, wenn mehr als 1 Seite existiert)
+  if (state.pages > 1) {
+    const x = document.createElement("button");
+    x.className = "pv-del"; x.textContent = "✕"; x.title = t("pageDeleted");
+    x.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (confirm(t("pageDeleteConfirm"))) deletePage(pageIndex);
+    });
+    pg.appendChild(x);
+  }
+  return pg;
+}
+
+/* Eine einzelne Karten-Seite löschen (Karten, Hintergrund, Preise, Status).
+   Alle nachfolgenden Seiten rücken auf. */
+function deletePage(pageIndex) {
+  const per = SLOTS_PER_PAGE;
+  // Slots der Seite herausschneiden
+  state.slots.splice(pageIndex * per, per);
+  // pageBg / prices / owned reindizieren (alles ab pageIndex bzw. dessen Slots verschiebt sich)
+  const remapObjBySlot = (obj) => {
+    const out = {};
+    for (const k in obj) {
+      const gi = +k;
+      const pg = Math.floor(gi / per);
+      if (pg === pageIndex) continue;            // gelöschte Seite
+      const newGi = pg > pageIndex ? gi - per : gi;
+      out[newGi] = obj[k];
+    }
+    return out;
+  };
+  state.prices = remapObjBySlot(state.prices);
+  state.owned = remapObjBySlot(state.owned);
+  // pageBg ist nach Seitenindex (nicht Slot)
+  const newBg = {};
+  for (const k in state.pageBg) {
+    const p = +k;
+    if (p === pageIndex) continue;
+    newBg[p > pageIndex ? p - 1 : p] = state.pageBg[k];
+  }
+  state.pageBg = newBg;
+  state.pages = Math.max(1, state.pages - 1);
+  // Spread in gültigen Bereich bringen
+  const maxS = totalSpreads();
+  if (state.spread > maxS) state.spread = maxS;
+  normalize(); save(); render();
+  toast(t("pageDeleted"));
+}
+
+function renderPreviewRail() {
+  if (!previewList) return;
+  previewList.innerHTML = "";
+  const maxS = totalSpreads();
+  for (let s = 0; s <= maxS; s++) {
+    const row = document.createElement("div");
+    row.className = "pv-spread" + (s === state.spread ? " active" : "");
+    row.dataset.spread = s;
+
+    // Deckel-Ansicht (spread 0): links Leder, rechts Seite 1
+    if (s === 0) {
+      const cover = document.createElement("div"); cover.className = "pv-page cover";
+      row.appendChild(cover);
+      row.appendChild(makePvPage(0));
+    } else {
+      const idx = pageIndicesForSpread(s);
+      idx.forEach(pi => row.appendChild(makePvPage(pi)));
+      // falls nur eine Seite (Rückseite), Platzhalter ergänzen
+      if (idx.length === 1) { const e = document.createElement("div"); e.className = "pv-page cover"; row.appendChild(e); }
+    }
+
+    // Klick -> zu dieser Ansicht springen
+    row.addEventListener("click", () => { state.spread = s; save(); render(); });
+
+    // Drag&Drop: ganze Doppelseiten tauschen (Deckel-Ansicht ausgenommen)
+    if (s >= 1) {
+      row.setAttribute("draggable", "true");
+      row.addEventListener("dragstart", (e) => { pvDragSpread = s; row.classList.add("dragging"); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", "spread:" + s); });
+      row.addEventListener("dragend", () => { row.classList.remove("dragging"); pvDragSpread = null; document.querySelectorAll(".pv-spread.dragover").forEach(x => x.classList.remove("dragover")); });
+      row.addEventListener("dragover", (e) => { if (pvDragSpread !== null) { e.preventDefault(); row.classList.add("dragover"); } });
+      row.addEventListener("dragleave", () => row.classList.remove("dragover"));
+      row.addEventListener("drop", (e) => {
+        e.preventDefault(); row.classList.remove("dragover");
+        if (pvDragSpread !== null && pvDragSpread !== s) swapSpreads(pvDragSpread, s);
+      });
+    }
+
+    const wrap = document.createElement("div");
+    wrap.appendChild(row);
+    const lbl = document.createElement("div"); lbl.className = "pv-label";
+    lbl.textContent = s === 0 ? t("page") + " 1" : pageIndicesForSpread(s).map(i => i + 1).join("–");
+    wrap.appendChild(lbl);
+    previewList.appendChild(wrap);
+  }
+}
+
+let pvDragSpread = null;
+
+/* Tauscht die kompletten Inhalte zweier Doppelseiten (Karten, Hintergründe,
+   Markierungen). Arbeitet seitenweise über die Karten-Seitenindizes. */
+function swapSpreads(a, b) {
+  const ia = pageIndicesForSpread(a), ib = pageIndicesForSpread(b);
+  // paarweise tauschen (linke<->linke, rechte<->rechte)
+  const n = Math.max(ia.length, ib.length);
+  for (let k = 0; k < n; k++) {
+    if (ia[k] === undefined || ib[k] === undefined) continue;
+    swapPages(ia[k], ib[k]);
+  }
+  save(); render();
+  toast(t("spreadSwapped"));
+}
+
+/* Tauscht zwei einzelne Karten-Seiten komplett. */
+function swapPages(p1, p2) {
+  const b1 = p1 * SLOTS_PER_PAGE, b2 = p2 * SLOTS_PER_PAGE;
+  for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+    const t = state.slots[b1 + i]; state.slots[b1 + i] = state.slots[b2 + i]; state.slots[b2 + i] = t;
+    // Besitz-Status mitnehmen
+    const o1 = state.owned[b1 + i], o2 = state.owned[b2 + i];
+    if (o2 === "missing") state.owned[b1 + i] = "missing"; else delete state.owned[b1 + i];
+    if (o1 === "missing") state.owned[b2 + i] = "missing"; else delete state.owned[b2 + i];
+  }
+  // Seiten-Hintergründe tauschen
+  const bg1 = state.pageBg[p1], bg2 = state.pageBg[p2];
+  if (bg2 !== undefined) state.pageBg[p1] = bg2; else delete state.pageBg[p1];
+  if (bg1 !== undefined) state.pageBg[p2] = bg1; else delete state.pageBg[p2];
+}
+
+/* ============================================================================
+   AUTO-SKALIERUNG: Ordner immer in den sichtbaren Bereich einpassen.
+   Der Ordner hat eine feste Pixelgröße; wir skalieren ihn per transform so,
+   dass er samt Rand in Stage-Breite/Höhe passt (nie größer als 1:1).
+   ========================================================================== */
+function fitBinder() {
+  const frame = document.getElementById("binderFrame");
+  const stageInner = document.getElementById("stageInner");
+  if (!frame || !stageInner) return;
+  frame.style.transform = "scale(1)";   // erst zurücksetzen, dann messen
+  const availW = window.innerWidth - 156 - 24 - 60;   // Leiste + Paddings + Pfeile
+  const availH = window.innerHeight - 56 - 52 - 70 - 150; // Toolbar, Pager, Bank, Abstände
+  const rect = frame.getBoundingClientRect();
+  const scale = Math.min(1, availW / rect.width, availH / rect.height);
+  frame.style.transform = "scale(" + scale.toFixed(3) + ")";
+  frame.style.transformOrigin = "top center";
+  // Höhe nach Skalierung kompensieren, damit Bank nicht überlappt
+  frame.style.marginBottom = (rect.height * (scale - 1)) + "px";
+}
+window.addEventListener("resize", fitBinder);
 
 /* Ein Feld (Ordner ODER Bank) — adressiert über LOCATION-ID */
 function makeSlot(loc) {
@@ -856,15 +1519,37 @@ function makeSlot(loc) {
     const im = document.createElement("img"); im.src = img; slot.appendChild(im);
 
     const del = document.createElement("button");
-    del.className = "del"; del.textContent = "✕"; del.title = "Karte entfernen";
-    del.addEventListener("click", (e) => { e.stopPropagation(); setCard(loc, null); save(); render(); });
+    del.className = "del"; del.textContent = "✕"; del.title = t("delCard");
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setCard(loc, null);
+      if (isBinderSlot) { delete state.prices[slotIndex]; delete state.owned[slotIndex]; }
+      save(); render();
+    });
     slot.appendChild(del);
 
     // Duplizieren: kopiert die Karte in den nächsten freien Platz
     const dup = document.createElement("button");
-    dup.className = "dup"; dup.textContent = "⧉"; dup.title = "Karte duplizieren";
+    dup.className = "dup"; dup.textContent = "⧉"; dup.title = t("dupCard");
     dup.addEventListener("click", (e) => { e.stopPropagation(); duplicateCard(loc); });
     slot.appendChild(dup);
+
+    // Preis setzen (nur Ordner-Karten): kleiner Knopf unten links
+    if (isBinderSlot) {
+      const priceBtn = document.createElement("button");
+      priceBtn.className = "price-btn"; priceBtn.textContent = currencySymbol();
+      priceBtn.title = t("setPrice");
+      priceBtn.addEventListener("click", (e) => { e.stopPropagation(); editPrice(slotIndex); });
+      slot.appendChild(priceBtn);
+
+      // vorhandenen Preis als Badge unten anzeigen
+      const pv = state.prices[slotIndex];
+      if (pv != null && !isNaN(pv)) {
+        const badge = document.createElement("div");
+        badge.className = "price-badge"; badge.textContent = formatPrice(pv);
+        slot.appendChild(badge);
+      }
+    }
 
     slot.addEventListener("click", () => openModal(img));
   } else {
@@ -880,7 +1565,7 @@ function makeSlot(loc) {
     const isMissing = state.owned[slotIndex] === "missing";
     toggle.className = "mark-toggle " + (isMissing ? "is-missing" : "is-owned");
     toggle.textContent = isMissing ? "✕" : "✓";
-    toggle.title = isMissing ? "Als 'habe ich' markieren" : "Als 'fehlt noch' markieren";
+    toggle.title = isMissing ? t("markMissingTitle") : t("markOwnedTitle");
     toggle.addEventListener("click", (e) => {
       e.stopPropagation();
       if (isMissing) delete state.owned[slotIndex];   // zurück zu owned (Standard)
@@ -935,10 +1620,29 @@ function attachDragAndDrop(slot, loc) {
     const src = dragSourceLoc || e.dataTransfer.getData("text/plain");
     if (src && src !== loc) {
       const a = getCard(src), b = getCard(loc);
-      setCard(loc, a); setCard(src, b);     // tauschen
+      setCard(loc, a); setCard(src, b);     // Bilder tauschen
+      // Preise + Markierungen mittauschen, aber nur für Ordner-Felder
+      // (Bank hat keine Preise/Status). meta(loc) liefert Index oder null.
+      const si = src.startsWith("slot:") ? +src.split(":")[1] : null;
+      const ti = loc.startsWith("slot:") ? +loc.split(":")[1] : null;
+      swapMeta(si, ti);
       save(); render();
     }
   });
+}
+
+/* Tauscht Preis + Besitz-Status zwischen zwei Slot-Indizes.
+   null = Bank-Platz (hat keine Meta) -> Zielmeta wird dann geleert/gesetzt. */
+function swapMeta(i, j) {
+  const get = (idx, obj) => idx == null ? undefined : obj[idx];
+  const pI = get(i, state.prices), pJ = get(j, state.prices);
+  const oI = get(i, state.owned),  oJ = get(j, state.owned);
+  // Preise
+  if (i != null) { if (pJ !== undefined) state.prices[i] = pJ; else delete state.prices[i]; }
+  if (j != null) { if (pI !== undefined) state.prices[j] = pI; else delete state.prices[j]; }
+  // Status
+  if (i != null) { if (oJ !== undefined) state.owned[i] = oJ; else delete state.owned[i]; }
+  if (j != null) { if (oI !== undefined) state.owned[j] = oI; else delete state.owned[j]; }
 }
 
 /* ============================================================================
@@ -986,8 +1690,8 @@ function updatePager() {
   const left = leftPageIndexForSpread(state.spread);
   const right = rightPageIndexForSpread(state.spread);
   let txt;
-  if (state.spread === 0) txt = "Deckel · Seite 1";
-  else txt = "Seite " + (left + 1) + " · " + (right < state.pages ? "Seite " + (right + 1) : "Rückseite");
+  if (state.spread === 0) txt = t("cover") + " · " + t("page") + " 1";
+  else txt = t("page") + " " + (left + 1) + " · " + (right < state.pages ? t("page") + " " + (right + 1) : t("backside"));
   posLabel.textContent = txt;
 
   const atStart = state.spread === 0;
@@ -1011,7 +1715,7 @@ function goToPage(pageNumber) {
   const spread = idx === 0 ? 0 : Math.ceil(idx / 2);
   state.spread = spread;
   save(); render();
-  toast("Zu Seite " + p + " gesprungen.");
+  toast(t("jumpTo", p));
 }
 
 function flip(direction) {
@@ -1048,6 +1752,38 @@ jumpInput.addEventListener("keydown", (e) => {
   else if (e.key === "Escape") closeJump();
 });
 jumpInput.addEventListener("blur", closeJump);
+
+/* ============================================================================
+   EINFÜGEN AUS ZWISCHENABLAGE (Strg+V) — z. B. Bild aus Word kopiert.
+   Das Bild landet im ersten freien Bank-Platz; ist die Bank voll, im ersten
+   freien Ordner-Feld. So lassen sich Bilder schnell aus Word übernehmen.
+   ========================================================================== */
+window.addEventListener("paste", async (e) => {
+  if (document.activeElement && document.activeElement.isContentEditable) return;
+  const items = (e.clipboardData && e.clipboardData.items) || [];
+  for (const it of items) {
+    if (it.type && it.type.startsWith("image/")) {
+      const file = it.getAsFile();
+      if (!file) continue;
+      e.preventDefault();
+      const data = await compressImage(file);
+      let placedBench = false;
+      for (let i = 0; i < BENCH_SIZE; i++) {
+        if (!state.bench[i]) { state.bench[i] = data; placedBench = true; break; }
+      }
+      if (!placedBench) {
+        const total = state.pages * SLOTS_PER_PAGE;
+        let placedSlot = false;
+        for (let i = 0; i < total; i++) { if (!state.slots[i]) { state.slots[i] = data; placedSlot = true; break; } }
+        if (!placedSlot) { state.pages += 2; normalize(); state.slots[(state.pages - 2) * SLOTS_PER_PAGE] = data; }
+        save(); render(); toast(placedSlot ? t("pasteSlot") : t("pasteNewPage"));
+      } else {
+        save(); render(); toast(t("pasteBench"));
+      }
+      return;
+    }
+  }
+});
 document.addEventListener("keydown", (e) => {
   if (modal.classList.contains("open")) return;
   // nicht blättern, während man Deckel-Text bearbeitet
@@ -1056,7 +1792,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft")  flip("prev");
 });
 document.getElementById("addPageBtn").addEventListener("click", () => {
-  state.pages += 2; normalize(); save(); render(); toast("Zwei Seiten hinzugefügt.");
+  state.pages += 2; normalize(); save(); render(); toast(t("pagesAdded"));
 });
 
 /* ============================================================================
@@ -1073,18 +1809,91 @@ fitCoverBtn.addEventListener("click", () => { state.fit = "cover"; applyFitClass
 fitContainBtn.addEventListener("click", () => { state.fit = "contain"; applyFitClass(); save(); });
 
 /* ============================================================================
+   SPRACHE (i18n) anwenden
+   ----------------------------------------------------------------------------
+   Setzt alle statischen DOM-Texte. Dynamische Texte (Slots, Vorschau, Pager)
+   kommen über render(). Die Switch-Buttons markieren die aktive Sprache.
+   ========================================================================== */
+function setText(id, key) { const el = document.getElementById(id); if (el) el.textContent = t(key); }
+function setTitle(id, key) { const el = document.getElementById(id); if (el) el.title = t(key); }
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  // Sprach-Switch markieren
+  const dEl = document.getElementById("langDE"), eEl = document.getElementById("langEN");
+  if (dEl) dEl.classList.toggle("active", lang === "de");
+  if (eEl) eEl.classList.toggle("active", lang === "en");
+
+  // Toolbar
+  setText("fitCover", "fitCover"); setText("fitContain", "fitContain");
+  setText("markOff", "markOff"); setText("markOn", "markOn");
+  setText("exportPricesOff", "pricesExportOff"); setText("exportPricesOn", "pricesExportOn");
+  setText("moreBtn", "more");
+  setText("appBgBtn", "bgChange"); setText("appBgResetBtn", "bgReset");
+  setText("exportLogoBtn", "logoChoose"); setText("exportNameBtn", "nameChoose"); setText("exportLogoClearBtn", "logoClear");
+  setText("importBtn", "importBtn"); setText("exportBtn", "exportBtn");
+  // Pager
+  setText("prevBtn", "prev"); setText("nextBtn", "next"); setText("addPageBtn", "addPage");
+  // Vorschau / Bench
+  const pvt = document.querySelector(".preview-rail-title"); if (pvt) pvt.textContent = t("pagesTitle");
+  const bt = document.querySelector(".bench-title"); if (bt) bt.textContent = t("bench");
+  // Startscreen
+  setText("startSub", "startSub"); setText("startNewH", "startNewH"); setText("startOpenH", "startOpenH");
+  setText("startCreateBtn", "startCreate"); setText("startImportBtn", "startImport");
+  const nameInp = document.getElementById("newColName"); if (nameInp) nameInp.placeholder = t("namePlaceholder");
+  const jump = document.getElementById("jumpInput"); if (jump) jump.placeholder = t("jumpPlaceholder");
+  // Tooltips der Pfeile
+  setTitle("sideNavPrev", "navPrev"); setTitle("sideNavNext", "navNext");
+}
+
+function setLang(l, doSave = true) {
+  lang = (l === "en") ? "en" : "de";
+  state.lang = lang;
+  localStorage.setItem(LANG_KEY, lang);
+  applyLang();
+  if (currentId) { renderFormatGrid && null; render(); }   // dynamische Texte neu
+  if (doSave && currentId) save();
+}
+
+document.getElementById("langDE").addEventListener("click", () => setLang("de"));
+document.getElementById("langEN").addEventListener("click", () => setLang("en"));
+
+/* Währungsumschaltung */
+const curEURBtn = document.getElementById("curEUR");
+const curUSDBtn = document.getElementById("curUSD");
+function applyCurrency() {
+  curEURBtn.classList.toggle("active", state.currency === "EUR");
+  curUSDBtn.classList.toggle("active", state.currency === "USD");
+}
+curEURBtn.addEventListener("click", () => { state.currency = "EUR"; applyCurrency(); save(); render(); });
+curUSDBtn.addEventListener("click", () => { state.currency = "USD"; applyCurrency(); save(); render(); });
+
+/* Preise im Export ein-/ausblenden (Segment-Switch) */
+const exportPricesOnBtn = document.getElementById("exportPricesOn");
+const exportPricesOffBtn = document.getElementById("exportPricesOff");
+function applyExportPricesBtn() {
+  const on = !!state.showPricesInExport;
+  exportPricesOnBtn.classList.toggle("active", on);
+  exportPricesOffBtn.classList.toggle("active", !on);
+}
+exportPricesOnBtn.addEventListener("click", () => { state.showPricesInExport = true; applyExportPricesBtn(); save(); toast(t("pricesOnToast")); });
+exportPricesOffBtn.addEventListener("click", () => { state.showPricesInExport = false; applyExportPricesBtn(); save(); toast(t("pricesOffToast")); });
+
+/* ============================================================================
    MARKIER-MODUS (an/aus)
    ========================================================================== */
-const markBtn = document.getElementById("markBtn");
-markBtn.addEventListener("click", () => {
-  markMode = !markMode;
-  markBtn.classList.toggle("primary", markMode);
-  markBtn.textContent = markMode ? "✓ Markieren: AN" : "✓ Markieren";
-  render();
-  toast(markMode
-    ? "Markier-Modus an: grün = habe ich, rot = fehlt noch."
-    : "Markier-Modus aus.");
-});
+const markOffBtn = document.getElementById("markOff");
+const markOnBtn = document.getElementById("markOn");
+function applyMarkSeg() {
+  markOnBtn.classList.toggle("active", markMode);
+  markOffBtn.classList.toggle("active", !markMode);
+}
+function setMarkMode(on) {
+  markMode = on; applyMarkSeg(); render();
+  toast(markMode ? "Markier-Modus an: grün = habe ich, rot = fehlt noch." : "Markier-Modus aus.");
+}
+markOnBtn.addEventListener("click", () => setMarkMode(true));
+markOffBtn.addEventListener("click", () => setMarkMode(false));
 
 /* ============================================================================
    GESAMTHINTERGRUND (hinter dem Ordner)
@@ -1110,16 +1919,70 @@ const appBgBtn = document.getElementById("appBgBtn");
 const appBgResetBtn = document.getElementById("appBgResetBtn");
 appBgBtn.addEventListener("click", () => { appBgInput.value = ""; appBgInput.click(); });
 appBgResetBtn.addEventListener("click", () => {
-  if (!state.appBg) { toast("Hintergrund ist bereits der Standard."); return; }
+  if (!state.appBg) { toast(t("bgIsDefault")); return; }
   state.appBg = null; applyAppBg(); save();
-  toast("Hintergrund auf Standard-Holz zurückgesetzt.");
+  toast(t("bgResetDone"));
 });
 appBgInput.addEventListener("change", async () => {
   const file = appBgInput.files[0]; if (!file) return;
   state.appBg = await compressImage(file, 1800, 0.82);
   applyAppBg(); save();
-  toast("Hintergrund geändert.");
+  toast(t("bgChanged"));
 });
+
+/* ---- Mehr-Menü öffnen/schließen ---- */
+const moreBtn = document.getElementById("moreBtn");
+const moreMenu = document.getElementById("moreMenu");
+moreBtn.addEventListener("click", (e) => { e.stopPropagation(); moreMenu.classList.toggle("open"); });
+document.addEventListener("click", (e) => {
+  if (!moreMenu.contains(e.target) && e.target !== moreBtn) moreMenu.classList.remove("open");
+});
+
+/* ---- Export-Logo (Bild) ---- */
+const exportLogoInput = document.getElementById("exportLogoFile");
+document.getElementById("exportLogoBtn").addEventListener("click", () => { moreMenu.classList.remove("open"); exportLogoInput.value = ""; exportLogoInput.click(); });
+exportLogoInput.addEventListener("change", async () => {
+  const file = exportLogoInput.files[0]; if (!file) return;
+  // Logo mit Transparenz beibehalten -> als PNG komprimieren
+  state.exportLogo = await compressLogo(file);
+  save(); toast(t("logoSet"));
+});
+
+/* ---- Export-Name (Text) ---- */
+document.getElementById("exportNameBtn").addEventListener("click", () => {
+  moreMenu.classList.remove("open");
+  const v = prompt(t("namePrompt"), state.exportName || "");
+  if (v === null) return;
+  state.exportName = v.trim();
+  if (state.exportName) state.exportLogo = null;   // Text und Logo schließen sich aus
+  save(); toast(state.exportName ? t("nameSet") : t("nameCleared"));
+});
+
+/* ---- Logo/Name entfernen ---- */
+document.getElementById("exportLogoClearBtn").addEventListener("click", () => {
+  moreMenu.classList.remove("open");
+  state.exportLogo = null; state.exportName = ""; save();
+  toast(t("logoNameCleared"));
+});
+
+/* Logo komprimieren, aber als PNG (Transparenz erhalten) */
+function compressLogo(file, maxW = 600) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        const c = document.createElement("canvas"); c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL("image/png"));
+      };
+      img.onerror = reject; img.src = reader.result;
+    };
+    reader.onerror = reject; reader.readAsDataURL(file);
+  });
+}
 
 /* ============================================================================
    JSON EXPORT / IMPORT
@@ -1127,9 +1990,10 @@ appBgInput.addEventListener("change", async () => {
 document.getElementById("exportBtn").addEventListener("click", () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download = "tcg-binder.json"; a.click();
+  const jsonName = (state.name || "tcg-binder").replace(/[^a-z0-9äöüß \-]/gi, "").trim().replace(/\s+/g, "-") || "tcg-binder";
+  const a = document.createElement("a"); a.href = url; a.download = jsonName + ".json"; a.click();
   URL.revokeObjectURL(url);
-  toast("Ordner als JSON exportiert.");
+  toast(t("exportJson"));
 });
 const importFileInput = document.getElementById("importFile");
 document.getElementById("importBtn").addEventListener("click", () => { importFileInput.value = ""; importFileInput.click(); });
@@ -1142,12 +2006,18 @@ importFileInput.addEventListener("change", () => {
       if (!Array.isArray(data.slots)) throw new Error("Ungültige Datei");
       state = Object.assign({
         bench: new Array(BENCH_SIZE).fill(null), pageBg: {}, fit: "cover", owned: {}, appBg: null,
-        coverTitle: "My Collection", coverSub: "Sammler-Ordner"
+        prices: {}, currency: "EUR", showPricesInExport: false, exportLogo: null, exportName: "",
+        coverTitle: "My Collection", coverSub: t("coverSubtitle"),
+        cols: 3, rows: 3, name: t("defaultColName"), lang: lang
       }, data);
       state.spread = 0;
-      normalize(); applyAppBg(); save(); render();
-      toast("Ordner importiert.");
-    } catch (e) { toast("Import fehlgeschlagen: keine gültige Binder-Datei."); console.warn(e); }
+      // importierte Collection bekommt eine eigene ID (so bleibt sie in der Liste)
+      currentId = newId();
+      if (state.lang === "de" || state.lang === "en") { lang = state.lang; applyLang(); }
+      normalize(); hideStartScreen();
+      applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyMarkSeg(); save(); render();
+      toast(t("imported"));
+    } catch (e) { toast(t("importFail")); console.warn(e); }
   };
   reader.readAsText(file);
 });
@@ -1159,9 +2029,9 @@ importFileInput.addEventListener("change", () => {
    wie das, was man im Ordner sieht: Bild als Blatt-Hintergrund + 3x3-Raster.
    ========================================================================== */
 function exportPageImage(pageIndex) {
-  const SIZE = 1080;
+  const W = 1080, H = 1350;                // Hochformat (Instagram-Portrait)
   const canvas = document.createElement("canvas");
-  canvas.width = SIZE; canvas.height = SIZE;
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext("2d");
 
   const loadImg = (src) => new Promise((res) => {
@@ -1169,48 +2039,119 @@ function exportPageImage(pageIndex) {
     const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src;
   });
 
-  const PAD = 70, GAP = 24;
-  const innerW = SIZE - PAD * 2;
-  const cardW = (innerW - GAP * 2) / 3;
-  const cardH = cardW * (8.8 / 6.3);
-  const gridH = cardH * 3 + GAP * 2;
-  const startY = (SIZE - gridH) / 2;
+  const CARD_RATIO = 8.8 / 6.3;            // Höhe/Breite einer Karte
+  const cols = state.cols || 3, rows = state.rows || 3;
+  const MARGIN = Math.round(W * 0.06);     // seitlicher Grundrand
+  const GAP = Math.round(W * 0.02);
+  // feste Zonen oben (Logo) und unten (Summe)
+  const topZone = Math.round(H * 0.1);     // Logo-Bereich
+  const bottomZone = Math.round(H * 0.11); // Summen-Bereich
+  // verfügbare Fläche fürs Raster
+  const availGridH = H - topZone - bottomZone - MARGIN;
+  const availGridW = W - MARGIN * 2;
+  // Kartengröße: limitiert durch Breite UND Höhe, kleinerer Wert gewinnt
+  const cardHByHeight = (availGridH - GAP * (rows - 1)) / rows;
+  const cardWByWidth  = (availGridW - GAP * (cols - 1)) / cols;
+  let cardW = Math.min(cardWByWidth, cardHByHeight / CARD_RATIO);
+  let cardH = cardW * CARD_RATIO;
+  const gridW = cardW * cols + GAP * (cols - 1);
+  const gridH = cardH * rows + GAP * (rows - 1);
+  const startX = (W - gridW) / 2;          // horizontal zentriert
+  // Raster vertikal in der Zone zwischen Logo und Summe zentrieren
+  const startY = topZone + ((H - topZone - bottomZone) - gridH) / 2;
 
   const base = pageIndex * SLOTS_PER_PAGE;
   const sources = [];
   for (let i = 0; i < SLOTS_PER_PAGE; i++) sources.push(state.slots[base + i]);
 
-  Promise.all([loadImg(state.pageBg[pageIndex]), ...sources.map(loadImg)]).then((imgs) => {
-    const bgImg = imgs[0], cardImgs = imgs.slice(1);
+  Promise.all([loadImg(state.pageBg[pageIndex]), loadImg(state.exportLogo), ...sources.map(loadImg)]).then((imgs) => {
+    const bgImg = imgs[0], logoImg = imgs[1], cardImgs = imgs.slice(2);
 
+    // Hintergrund über die volle Fläche
     if (bgImg) {
-      drawCover(ctx, bgImg, 0, 0, SIZE, SIZE);
-      ctx.fillStyle = "rgba(0,0,0,0.22)"; ctx.fillRect(0, 0, SIZE, SIZE);
+      drawCover(ctx, bgImg, 0, 0, W, H);
+      ctx.fillStyle = "rgba(0,0,0,0.18)"; ctx.fillRect(0, 0, W, H);
     } else {
-      const g = ctx.createLinearGradient(0, 0, SIZE, SIZE);
-      g.addColorStop(0, "#2c3340"); g.addColorStop(1, "#0d0f14");
-      ctx.fillStyle = g; ctx.fillRect(0, 0, SIZE, SIZE);
+      const g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, "#fbf6ea"); g.addColorStop(1, "#e9dcc2");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     }
 
-    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
-      const idx = r * 3 + c;
-      const x = PAD + c * (cardW + GAP), y = startY + r * (cardH + GAP);
-      roundRect(ctx, x, y, cardW, cardH, 14);
-      ctx.fillStyle = "rgba(255,255,255,0.10)"; ctx.fill();
+    // --- Logo/Name oben (Wasserzeichen), in der topZone zentriert ---
+    const headerY = topZone / 2;
+    if (logoImg) {
+      const maxLogoH = W * 0.1, maxLogoW = W * 0.5;
+      let lw = logoImg.width, lh = logoImg.height;
+      const scale = Math.min(maxLogoW / lw, maxLogoH / lh);
+      lw *= scale; lh *= scale;
+      ctx.globalAlpha = 0.95;
+      ctx.drawImage(logoImg, (W - lw) / 2, headerY - lh / 2, lw, lh);
+      ctx.globalAlpha = 1;
+    } else if (state.exportName && state.exportName.trim()) {
+      ctx.font = "800 " + Math.round(W * 0.046) + "px system-ui, sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillStyle = bgImg ? "rgba(255,255,255,0.95)" : "rgba(40,28,16,0.92)";
+      ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 6;
+      ctx.fillText(state.exportName.trim(), W / 2, headerY);
+      ctx.shadowBlur = 0;
+    }
+
+    const radius = Math.round(cardW * 0.06);
+    const base = pageIndex * SLOTS_PER_PAGE;
+    const showP = !!state.showPricesInExport;
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const idx = r * cols + c;
+      const x = startX + c * (cardW + GAP), y = startY + r * (cardH + GAP);
+      roundRect(ctx, x, y, cardW, cardH, radius);
+      ctx.fillStyle = bgImg ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.05)"; ctx.fill();
       const ci = cardImgs[idx];
       if (ci) {
-        ctx.save(); roundRect(ctx, x, y, cardW, cardH, 14); ctx.clip();
+        ctx.save(); roundRect(ctx, x, y, cardW, cardH, radius); ctx.clip();
         (state.fit === "contain" ? drawContain : drawCover)(ctx, ci, x, y, cardW, cardH);
         ctx.restore();
       }
-      roundRect(ctx, x, y, cardW, cardH, 14);
-      ctx.lineWidth = 2; ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.stroke();
+      roundRect(ctx, x, y, cardW, cardH, radius);
+      ctx.lineWidth = 2; ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.stroke();
+
+      // Preis-Badge auf der Karte (wenn aktiviert und Preis vorhanden)
+      const price = state.prices[base + idx];
+      if (showP && price != null && !isNaN(price) && ci) {
+        const label = formatPrice(price);
+        ctx.font = "700 " + Math.round(cardW * 0.13) + "px system-ui, sans-serif";
+        const tw = ctx.measureText(label).width;
+        const padX = cardW * 0.06, bh = cardW * 0.2;
+        const bw = tw + padX * 2;
+        const bx = x + (cardW - bw) / 2, by = y + cardH - bh - cardW * 0.06;
+        roundRect(ctx, bx, by, bw, bh, bh / 2);
+        ctx.fillStyle = "rgba(0,0,0,0.75)"; ctx.fill();
+        ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(201,162,75,0.7)"; ctx.stroke();
+        ctx.fillStyle = "#ffe9a8"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(label, bx + bw / 2, by + bh / 2 + 1);
+      }
+    }
+
+    // Gesamtsumme in der unteren Zone (unter dem Raster, ohne Überschneidung)
+    const sum = pageSum(pageIndex);
+    if (showP && sum != null) {
+      const label = t("totalLabel") + formatPrice(sum);
+      ctx.font = "800 " + Math.round(W * 0.045) + "px system-ui, sans-serif";
+      const tw = ctx.measureText(label).width;
+      const padX = W * 0.035, bh = W * 0.09, bw = tw + padX * 2;
+      const bx = (W - bw) / 2;
+      // vertikal in der bottomZone zentrieren
+      const by = (H - bottomZone) + (bottomZone - bh) / 2;
+      roundRect(ctx, bx, by, bw, bh, bh / 2);
+      ctx.fillStyle = "rgba(20,14,9,0.88)"; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = "rgba(201,162,75,0.8)"; ctx.stroke();
+      ctx.fillStyle = "#ffe9a8"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(label, W / 2, by + bh / 2 + 1);
     }
 
     const a = document.createElement("a");
     a.href = canvas.toDataURL("image/png");
-    a.download = "binder-seite-" + (pageIndex + 1) + ".png"; a.click();
-    toast("Seitenbild (1080×1080) exportiert.");
+    const safeName = (state.name || "binder").replace(/[^a-z0-9äöüß \-]/gi, "").trim().replace(/\s+/g, "-") || "binder";
+    a.download = safeName + "-page-" + (pageIndex + 1) + ".png"; a.click();
+    toast(t("exportImg"));
   });
 }
 
@@ -1243,11 +2184,101 @@ function toast(msg) {
 }
 
 /* ============================================================================
-   START
+   STARTSCREEN / COLLECTION-AUSWAHL
    ========================================================================== */
-load();
-applyAppBg();
-render();
+const FORMATS = [
+  { cols: 2, rows: 2 }, { cols: 3, rows: 3 },
+  { cols: 4, rows: 3 }, { cols: 3, rows: 4 }, { cols: 4, rows: 4 },
+];
+let selectedFormat = { cols: 3, rows: 3 };
+
+const startScreen = document.getElementById("startScreen");
+function showStartScreen() {
+  renderFormatGrid();
+  renderCollectionList();
+  startScreen.classList.remove("hidden");
+}
+function hideStartScreen() { startScreen.classList.add("hidden"); }
+
+function renderFormatGrid() {
+  const grid = document.getElementById("formatGrid");
+  grid.innerHTML = "";
+  FORMATS.forEach(f => {
+    const opt = document.createElement("div");
+    opt.className = "format-opt" + (f.cols === selectedFormat.cols && f.rows === selectedFormat.rows ? " active" : "");
+    const mini = document.createElement("div");
+    mini.className = "format-mini";
+    mini.style.gridTemplateColumns = "repeat(" + f.cols + ",1fr)";
+    for (let i = 0; i < f.cols * f.rows; i++) { const s = document.createElement("span"); mini.appendChild(s); }
+    opt.appendChild(mini);
+    const lbl = document.createElement("div"); lbl.className = "format-label"; lbl.textContent = f.cols + "×" + f.rows;
+    opt.appendChild(lbl);
+    const cap = document.createElement("div"); cap.className = "format-cap"; cap.textContent = t("formatCap", f.cols * f.rows);
+    opt.appendChild(cap);
+    opt.addEventListener("click", () => { selectedFormat = { cols: f.cols, rows: f.rows }; renderFormatGrid(); });
+    grid.appendChild(opt);
+  });
+}
+
+function renderCollectionList() {
+  const list = document.getElementById("collectionList");
+  list.innerHTML = "";
+  const cols = loadIndex().sort((a, b) => b.updatedAt - a.updatedAt);
+  if (!cols.length) {
+    const e = document.createElement("div"); e.className = "collection-empty"; e.textContent = t("noCollections");
+    list.appendChild(e); return;
+  }
+  cols.forEach(c => {
+    const item = document.createElement("div"); item.className = "collection-item";
+    const name = document.createElement("div"); name.className = "ci-name"; name.textContent = c.name || "Collection";
+    item.appendChild(name);
+    const meta = document.createElement("div"); meta.className = "ci-meta";
+    meta.textContent = c.format + " · " + new Date(c.updatedAt).toLocaleDateString();
+    item.appendChild(meta);
+    const del = document.createElement("button"); del.className = "ci-del"; del.textContent = "✕";
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (confirm(t("deleteColConfirm", c.name || "Collection"))) { deleteCollection(c.id); renderCollectionList(); }
+    });
+    item.appendChild(del);
+    item.addEventListener("click", () => openCollection(c.id));
+    list.appendChild(item);
+  });
+}
+
+document.getElementById("startCreateBtn").addEventListener("click", () => {
+  const nameInput = document.getElementById("newColName");
+  const name = (nameInput.value || "").trim() || t("defaultColName");
+  createCollection(selectedFormat.cols, selectedFormat.rows, name);
+  nameInput.value = "";
+});
+document.getElementById("startImportBtn").addEventListener("click", () => {
+  importFileInput.value = ""; importFileInput.click();
+});
+document.getElementById("homeBtn").addEventListener("click", () => {
+  if (currentId) { save(); }
+  if (confirm(t("homeConfirm"))) showStartScreen();
+});
+
+/* ============================================================================
+   START / BOOT
+   ========================================================================== */
+function boot() {
+  lang = detectLang();
+  applyLang();
+  applyCurrency(); applyExportPricesBtn(); applyMarkSeg();
+  const lastId = localStorage.getItem(LAST_KEY);
+  const idx = loadIndex();
+  if (lastId && idx.find(c => c.id === lastId)) {
+    openCollection(lastId);
+  } else if (idx.length) {
+    // es gibt Collections, aber keine zuletzt geöffnete -> Startscreen
+    showStartScreen();
+  } else {
+    showStartScreen();
+  }
+}
+boot();
 </script>
 </body>
 </html>
