@@ -44,17 +44,17 @@
     --page-size: 750px;
     --page-pad: 22px;            /* (Restwert) */
 
-    --leather-1: #3a2a1d;
-    --leather-2: #241710;
-    --page-bg: #efe7d6;          /* heller "Papier"-Ton der Innenseite (wenn kein Bild) */
-    --page-bg-2: #e4d8c1;
-    --slot-empty: rgba(255,255,255,.14);
-    --slot-border: rgba(255,255,255,.35);
+    --leather-1: #23262f;
+    --leather-2: #14161c;
+    --page-bg: #f2f3f8;          /* heller "Papier"-Ton der Innenseite (wenn kein Bild) */
+    --page-bg-2: #e4e6ee;
+    --slot-empty: rgba(139,124,246,.10);
+    --slot-border: rgba(139,124,246,.38);
 
-    --gold: #c9a24b;
-    --accent: #d23b3b;           /* Akzentfarbe (Rot) */
-    --ink: #2a2018;
-    --toolbar-bg: rgba(20,14,9,.82);
+    --gold: #8b7cf6;
+    --accent: #f43f5e;           /* Akzentfarbe (Rose) */
+    --ink: #1b1d29;
+    --toolbar-bg: rgba(16,17,24,.82);
     --shadow: 0 18px 40px rgba(0,0,0,.45);
   }
 
@@ -64,19 +64,17 @@
     margin: 0;
     height: 100%;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    color: #f4eede;
-    /* Holztisch-Optik hinter dem ganzen Ordner */
-    background-color: #6b4a2f;
+    color: #e7e8f2;
+    /* Moderner, dunkler Hintergrund hinter dem ganzen Ordner (Grid + sanftes Glühen) */
+    background-color: #0b0d12;
     background-image:
-      repeating-linear-gradient(92deg,
-        rgba(0,0,0,.06) 0px, rgba(0,0,0,.06) 2px,
-        rgba(255,255,255,.03) 2px, rgba(255,255,255,.03) 4px,
-        transparent 4px, transparent 26px),
-      repeating-linear-gradient(89deg,
-        rgba(0,0,0,.04) 0px, rgba(0,0,0,.04) 3px, transparent 3px, transparent 60px),
-      repeating-linear-gradient(0deg,
-        rgba(0,0,0,.14) 0px, rgba(0,0,0,.14) 2px, transparent 2px, transparent 140px),
-      radial-gradient(120% 100% at 50% 20%, #835835 0%, #6b4a2f 45%, #4a3220 100%);
+      radial-gradient(1100px 560px at 12% -8%, rgba(139,124,246,.20), transparent 60%),
+      radial-gradient(900px 480px at 100% 4%, rgba(34,211,201,.12), transparent 55%),
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(180deg, #12141d 0%, #0b0d12 100%);
+    background-size: auto, auto, 42px 42px, 42px 42px, auto;
+    background-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat;
     overflow: hidden;
   }
 
@@ -100,8 +98,8 @@
   .emblem {
     width: 22px; height: 22px; border-radius: 6px; flex: none;
     display: flex; align-items: center; justify-content: center;
-    font-size: 9px; font-weight: 800; letter-spacing: .5px; color: #1a130a;
-    background: linear-gradient(160deg, #e7c976, #c9a24b 55%, #a07e2f);
+    font-size: 9px; font-weight: 800; letter-spacing: .5px; color: #14121f;
+    background: linear-gradient(160deg, #c4baff, #8b7cf6 55%, #5b4bd6);
     border: 1.5px solid rgba(0,0,0,.35);
     box-shadow: inset 0 1px 1px rgba(255,255,255,.5);
   }
@@ -110,7 +108,7 @@
 
   .btn {
     appearance: none; border: 1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.06); color: #f4eede;
+    background: rgba(255,255,255,.06); color: #e7e8f2;
     padding: 8px 12px; border-radius: 9px; font-size: 13px;
     cursor: pointer; white-space: nowrap; transition: .15s;
   }
@@ -121,22 +119,48 @@
 
   /* cover/contain Umschalter */
   .seg { display: inline-flex; border: 1px solid rgba(255,255,255,.14); border-radius: 9px; overflow: hidden; }
-  .seg button { border: 0; background: transparent; color: #f4eede; padding: 8px 11px; font-size: 12px; cursor: pointer; }
-  .seg button.active { background: var(--gold); color: #1a130a; font-weight: 700; }
+  .seg button { border: 0; background: transparent; color: #e7e8f2; padding: 8px 11px; font-size: 12px; cursor: pointer; }
+  .seg button.active { background: var(--gold); color: #14121f; font-weight: 700; }
+
+  /* Icon statt Text in Buttons (Toolbar-Icons, konsistente Strichzeichnungen) */
+  .btn svg, .seg button svg { width: 16px; height: 16px; display: block; flex: none; }
+  .btn.icon-only { padding: 8px; display: inline-flex; align-items: center; justify-content: center; }
+  .seg.icon-seg button { padding: 8px 10px; display: inline-flex; align-items: center; justify-content: center; }
+  .btn.with-icon { display: inline-flex; align-items: center; gap: 7px; }
+
+  /* iOS-artiger Toggle-Switch für binäre Einstellungen (statt zweier Text-Buttons) */
+  .icon-switch {
+    appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: #e7e8f2;
+    padding: 6px 10px 6px 9px; border-radius: 9px; font-size: 12px; transition: .15s;
+  }
+  .icon-switch:hover { background: rgba(255,255,255,.12); }
+  .icon-switch svg { width: 15px; height: 15px; flex: none; }
+  .switch-track {
+    width: 30px; height: 17px; border-radius: 20px; background: rgba(255,255,255,.2);
+    position: relative; flex: none; transition: background .2s;
+  }
+  .switch-thumb {
+    position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 50%;
+    background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+  .icon-switch.on { color: #e7e8f2; }
+  .icon-switch.on .switch-track { background: var(--gold); }
+  .icon-switch.on .switch-thumb { transform: translateX(13px); }
 
   /* Toolbar-Gruppen + Mehr-Menü */
   .toolbar-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .menu-wrap { position: relative; }
   .menu {
     position: absolute; top: calc(100% + 6px); right: 0; min-width: 230px;
-    background: rgba(28,20,12,.98); border: 1px solid rgba(201,162,75,.35);
+    background: rgba(22,20,32,.98); border: 1px solid rgba(139,124,246,.35);
     border-radius: 10px; padding: 6px; z-index: 60;
     box-shadow: 0 12px 30px rgba(0,0,0,.5); display: none;
   }
   .menu.open { display: block; }
   .menu-item {
     display: block; width: 100%; text-align: left;
-    background: transparent; border: 0; color: #f4eede;
+    background: transparent; border: 0; color: #e7e8f2;
     padding: 9px 12px; border-radius: 7px; font-size: 13px; cursor: pointer;
   }
   .menu-item:hover { background: rgba(255,255,255,.1); }
@@ -161,11 +185,11 @@
     border-radius: 16px;
     background:
       repeating-linear-gradient(45deg, rgba(255,255,255,.02) 0 3px, transparent 3px 7px),
-      radial-gradient(140% 160% at 25% 15%, #7a4a2a, #5e3719 55%, #3f240f);
+      radial-gradient(140% 160% at 25% 15%, #2a2e3b, #1c1f29 55%, #12141b);
     box-shadow:
       var(--shadow),
       inset 0 0 0 2px rgba(0,0,0,.35),
-      inset 0 0 0 3px rgba(201,162,75,.18);
+      inset 0 0 0 3px rgba(139,124,246,.18);
   }
   /* umlaufende Ziernaht des Ledereinbands */
   .binder::before {
@@ -184,7 +208,7 @@
     display: flex; align-items: center; justify-content: center;  /* Raster mittig */
     /* cremefarbenes "Papier"; wird von .page-bg-layer überlagert, wenn ein Bild gesetzt ist */
     background:
-      linear-gradient(160deg, #fbf6ea, #f0e7d2);
+      linear-gradient(160deg, #f2f3f8, #e4e6ee);
     overflow: hidden;
   }
   /* die Falz-Seite bekommt minimal mehr Rand für die Bindung */
@@ -213,7 +237,7 @@
   .hole {
     width: 14px; height: 14px; border-radius: 50%;
     /* gestanztes Loch: dunkle Mitte, leichter Prägerand */
-    background: radial-gradient(circle at 50% 40%, #cfc3a8, #ad9f7f 70%, #87795c);
+    background: radial-gradient(circle at 50% 40%, #cbd0dc, #9aa1b0 70%, #6b7280);
     box-shadow:
       inset 0 2px 4px rgba(0,0,0,.6),
       inset 0 -1px 1px rgba(255,255,255,.5),
@@ -254,9 +278,9 @@
   .cover-inner {
     background:
       repeating-linear-gradient(45deg, rgba(255,255,255,.018) 0 2px, transparent 2px 6px),
-      radial-gradient(130% 150% at 28% 18%, #6a4324, #4a2f17 55%, #321f0d);
+      radial-gradient(130% 150% at 28% 18%, #262a38, #191c26 55%, #101219);
     display: flex; align-items: center; justify-content: center;
-    color: #e4cd96;
+    color: #cdc6ff;
     box-shadow: inset -26px 0 42px -22px rgba(0,0,0,.75);
   }
   .cover-inner.right { box-shadow: inset 26px 0 42px -22px rgba(0,0,0,.75); }
@@ -264,10 +288,10 @@
   .cover-inner::before { border-color: rgba(228,205,150,.22); box-shadow: none; inset: 18px; }
   .cover-plate {
     text-align: center; padding: 30px;
-    border: 1px solid rgba(201,162,75,.4);
+    border: 1px solid rgba(139,124,246,.4);
     border-radius: 10px;
     background: rgba(0,0,0,.12);
-    box-shadow: 0 0 0 6px rgba(201,162,75,.06);
+    box-shadow: 0 0 0 6px rgba(139,124,246,.06);
     max-width: 80%;
   }
   .cover-plate .pb { width: 56px; height: 56px; margin: 0 auto 14px; font-size: 20px; border-radius: 12px; }
@@ -278,10 +302,10 @@
   }
   .cover-plate p { margin: 0; font-size: 12px; opacity: .8; letter-spacing: 1px; outline: none; min-width: 40px; }
   /* editierbare Felder: dezenter Hinweis beim Hovern/Fokus */
-  .editable:hover { background: rgba(201,162,75,.12); border-radius: 4px; }
-  .editable:focus { background: rgba(201,162,75,.18); border-radius: 4px; }
+  .editable:hover { background: rgba(139,124,246,.12); border-radius: 4px; }
+  .editable:focus { background: rgba(139,124,246,.18); border-radius: 4px; }
   .cover-hint { margin-top: 16px; font-size: 10px; opacity: .45; letter-spacing: .5px; }
-  .cover-plate .line { width: 60%; height: 1px; background: rgba(201,162,75,.4); margin: 14px auto; }
+  .cover-plate .line { width: 60%; height: 1px; background: rgba(139,124,246,.4); margin: 14px auto; }
 
   /* ---------- 3x3 Grid ---------- */
   .grid {
@@ -313,7 +337,7 @@
   }
   .slot:hover { border-color: var(--gold); }
   .slot .plus { font-size: 26px; color: rgba(255,255,255,.55); font-weight: 300; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
-  .slot.filled { border-style: solid; border-color: rgba(0,0,0,.25); cursor: grab; background: #1a1a1a; }
+  .slot.filled { border-style: solid; border-color: rgba(0,0,0,.25); cursor: grab; background: #14151b; }
   .slot.filled:active { cursor: grabbing; }
   .slot img {
     width: 100%; height: 100%; display: block;
@@ -323,7 +347,7 @@
   body.fit-contain .slot img { object-fit: contain; }
 
   /* Drag-Zustände */
-  .slot.dragover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(210,59,59,.35); transform: scale(1.02); }
+  .slot.dragover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(244,63,94,.35); transform: scale(1.02); }
   .slot.dragging { opacity: .35; }
 
   /* Lösch-Button (X) erscheint beim Hovern auf belegter Karte */
@@ -348,7 +372,7 @@
     pointer-events: auto; z-index: 4;
   }
   .slot.filled:hover .dup { display: flex; }
-  .slot .dup:hover { background: var(--gold); color: #1a130a; }
+  .slot .dup:hover { background: var(--gold); color: #14121f; }
 
   /* Preis-Knopf (unten links, beim Hovern) */
   .slot .price-btn {
@@ -360,19 +384,19 @@
     pointer-events: auto; z-index: 4;
   }
   .slot.filled:hover .price-btn { display: flex; }
-  .slot .price-btn:hover { background: var(--gold); color: #1a130a; }
+  .slot .price-btn:hover { background: var(--gold); color: #14121f; }
   /* Preis-Badge (immer sichtbar, wenn Preis gesetzt) unten mittig */
   .slot .price-badge {
     position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,.72); color: #ffe9a8; border: 1px solid rgba(201,162,75,.5);
+    background: rgba(0,0,0,.72); color: #6ee7b7; border: 1px solid rgba(139,124,246,.5);
     font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
     z-index: 3; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,.4);
   }
   /* Seitensumme unten am Blatt */
   .page-sum {
     position: absolute; bottom: 6px; right: 12px; z-index: 3;
-    background: rgba(20,14,9,.82); color: #ffe9a8;
-    border: 1px solid rgba(201,162,75,.5);
+    background: rgba(16,17,24,.82); color: #6ee7b7;
+    border: 1px solid rgba(139,124,246,.5);
     font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 10px;
     box-shadow: 0 1px 5px rgba(0,0,0,.4); letter-spacing: .3px;
   }
@@ -410,25 +434,44 @@
   /* ---------- Ablage-Bank unter dem Ordner ---------- */
   .bench {
     flex: none;
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    background: rgba(20,14,9,.55);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 14px;
-    padding: 12px 16px;
-    backdrop-filter: blur(6px);
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    background: linear-gradient(180deg, rgba(32,34,47,.72), rgba(17,18,26,.72));
+    border: 1px solid rgba(139,124,246,.22);
+    border-radius: 16px;
+    padding: 14px 20px 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 28px rgba(0,0,0,.35);
+    max-width: min(90vw, 900px);
   }
-  .bench-title { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; opacity: .6; }
-  .bench-row { display: flex; gap: 10px; }
-  /* Bank-Plätze: gleiche Proportion wie Karten, aber kleiner */
+  .bench-head { display: flex; align-items: center; gap: 10px; width: 100%; }
+  .bench-title { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; opacity: .65; font-weight: 700; }
+  .bench-count {
+    font-size: 11px; font-weight: 700; color: var(--gold);
+    background: rgba(139,124,246,.14); border: 1px solid rgba(139,124,246,.32);
+    border-radius: 20px; padding: 2px 9px; line-height: 1.4;
+  }
+  .bench-clear {
+    margin-left: auto; appearance: none; cursor: pointer; transition: .15s;
+    border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05);
+    color: #e7e8f2; font-size: 11px; padding: 6px 11px; border-radius: 8px;
+  }
+  .bench-clear:hover:not(:disabled) { background: var(--accent); border-color: transparent; }
+  .bench-clear:disabled { opacity: .3; cursor: not-allowed; }
+  .bench-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  /* Bank-Plätze: gleiche Proportion wie Karten, etwas kleiner, mit modernem Hover-Lift */
   .bench .slot {
-    width: 72px; height: 100px;   /* 72 * 8.8/6.3 ≈ 100 */
+    width: 80px; height: 112px;   /* 80 * 8.8/6.3 ≈ 112 */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.3);
+    transition: transform .15s, box-shadow .15s, border-color .15s;
   }
-  .bench .slot .plus { font-size: 20px; }
+  .bench .slot:hover { transform: translateY(-3px); box-shadow: 0 12px 20px rgba(0,0,0,.4); }
+  .bench .slot .plus { font-size: 22px; }
 
   /* ---------- Vorschau-Leiste aller Seiten (rechts) ---------- */
   .preview-rail {
     position: fixed; top: 56px; right: 0; bottom: 52px; width: 132px;
-    background: rgba(20,14,9,.78); backdrop-filter: blur(10px);
+    background: rgba(16,17,24,.78); backdrop-filter: blur(10px);
     border-left: 1px solid rgba(255,255,255,.08);
     z-index: 46; display: flex; flex-direction: column;
   }
@@ -453,7 +496,7 @@
     display: grid; grid-template-columns: repeat(var(--cols,3),1fr); grid-template-rows: repeat(var(--rows,3),1fr);
     gap: 1px; padding: 3px; overflow: hidden;
   }
-  .pv-page.cover { background: radial-gradient(120% 130% at 30% 20%, #6a4324, #3a230f); }
+  .pv-page.cover { background: radial-gradient(120% 130% at 30% 20%, #262a38, #14121f); }
   .pv-cell { background: rgba(255,255,255,.12); border-radius: 1px; background-size: cover; background-position: center; }
   .pv-del {
     position: absolute; top: 2px; right: 2px; z-index: 5;
@@ -472,8 +515,8 @@
   .side-nav {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 52px; height: 52px; border-radius: 50%;
-    background: rgba(20,14,9,.78); color: #f4eede;
-    border: 1px solid rgba(201,162,75,.45);
+    background: rgba(16,17,24,.78); color: #e7e8f2;
+    border: 1px solid rgba(139,124,246,.45);
     font-size: 24px; cursor: pointer; z-index: 45;
     display: flex; align-items: center; justify-content: center;
     backdrop-filter: blur(6px);
@@ -499,7 +542,7 @@
   .jump-input {
     width: 90px; padding: 7px 9px; border-radius: 8px;
     border: 1px solid var(--gold); background: rgba(255,255,255,.1);
-    color: #f4eede; font-size: 13px; text-align: center;
+    color: #e7e8f2; font-size: 13px; text-align: center;
   }
   .jump-input:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
   .btn:disabled { opacity: .35; cursor: not-allowed; }
@@ -535,26 +578,83 @@
   /* Toast */
   .toast {
     position: fixed; left: 50%; bottom: 70px; transform: translateX(-50%) translateY(20px);
-    background: rgba(20,14,9,.95); color: #fff; padding: 10px 16px; border-radius: 10px;
+    background: rgba(16,17,24,.95); color: #fff; padding: 10px 16px; border-radius: 10px;
     font-size: 13px; opacity: 0; pointer-events: none; transition: .25s; z-index: 200;
-    border: 1px solid rgba(201,162,75,.4);
+    border: 1px solid rgba(139,124,246,.4);
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   @media (prefers-reduced-motion: reduce) { .flip { animation: none !important; display: none !important; } }
   .hidden { display: none; }
+  /* ===================== WATCHLIST ===================== */
+  .watchlist {
+    position: fixed; inset: 0; z-index: 280;
+    background: radial-gradient(120% 120% at 50% 0%, #171825 0%, #0e0f16 70%, #08090d 100%);
+    display: none; flex-direction: column; padding: 20px 24px;
+  }
+  .watchlist.open { display: flex; }
+  .wl-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .wl-title { font-size: 20px; font-weight: 800; }
+  .wl-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .wl-total { font-size: 15px; color: #6ee7b7; font-weight: 700; margin-bottom: 14px; }
+  .wl-tablewrap { flex: 1; overflow: auto; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; }
+  .wl-empty { padding: 40px; text-align: center; opacity: .5; font-style: italic; display: none; }
+  .wl-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  .wl-table th, .wl-table td { border: 1px solid rgba(255,255,255,.08); padding: 8px 10px; text-align: left; white-space: nowrap; }
+  .wl-table th { background: rgba(0,0,0,.35); position: sticky; top: 0; font-size: 12px; letter-spacing: .3px; z-index: 1; }
+  /* sortierbare Kopfzelle */
+  .wl-th-sort { cursor: pointer; user-select: none; position: relative; }
+  .wl-th-sort:hover { background: rgba(255,255,255,.08); }
+  .wl-th-sort .wl-arrow { opacity: .8; margin-left: 4px; font-size: 10px; }
+  /* Resize-Griff am rechten Rand einer Kopfzelle */
+  .wl-th-wrap { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .wl-resizer {
+    position: absolute; top: 0; right: -3px; width: 8px; height: 100%;
+    cursor: col-resize; z-index: 2;
+  }
+  .wl-search {
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
+    color: #e7e8f2; border-radius: 8px; padding: 7px 10px; font-size: 13px; width: 180px;
+  }
+  .wl-search:focus { outline: 2px solid var(--gold); }
+  /* Einzel- und Gesamtpreis untereinander in einer Zelle */
+  .wl-total-line { font-size: 11px; opacity: .65; margin-top: 3px; }
+  .wl-total-line b { color: #6ee7b7; font-weight: 700; }
+  .wl-table tbody tr:hover { background: rgba(255,255,255,.04); }
+  .wl-img { width: 40px; height: 56px; object-fit: cover; border-radius: 4px; display: block; cursor: pointer; transition: outline-color .15s; outline: 2px solid transparent; outline-offset: 1px; }
+  .wl-img:hover { outline-color: var(--gold); }
+  .wl-name-input, .wl-price-input {
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
+    color: #e7e8f2; border-radius: 6px; padding: 6px 8px; font-size: 13px;
+  }
+  .wl-name-input { width: 150px; }
+  .wl-price-input { width: 82px; text-align: right; }
+  .wl-lang-select {
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
+    color: #e7e8f2; border-radius: 6px; padding: 6px 8px; font-size: 13px;
+  }
+  .wl-lang-select option { background: #171825; }
+  .wl-diff-pos { color: #4ade80; font-weight: 700; }
+  .wl-diff-neg { color: #f87171; font-weight: 700; }
+  .wl-diff-zero { opacity: .6; }
+  .wl-check-date {
+    background: transparent; border: 0; color: #6ee7b7; font-size: 11px; width: 96px; text-align: center;
+  }
+  .wl-colsum { font-weight: 700; color: #6ee7b7; }
+  .wl-del-check { background: transparent; border: 0; color: #f87171; cursor: pointer; font-size: 11px; margin-left: 4px; }
+
   /* ===================== STARTSCREEN ===================== */
   .startscreen {
     position: fixed; inset: 0; z-index: 300;
     background:
-      radial-gradient(120% 120% at 50% 0%, #2c2018 0%, #1a120b 60%, #0d0907 100%);
+      radial-gradient(120% 120% at 50% 0%, #1b1d29 0%, #101119 60%, #08090d 100%);
     display: flex; align-items: center; justify-content: center; padding: 30px;
     overflow-y: auto;
   }
   .startscreen.hidden { display: none; }
   .start-card {
     width: 100%; max-width: 680px;
-    background: rgba(28,20,12,.7); border: 1px solid rgba(201,162,75,.3);
+    background: rgba(22,20,32,.7); border: 1px solid rgba(139,124,246,.3);
     border-radius: 18px; padding: 28px 30px;
     box-shadow: 0 30px 70px rgba(0,0,0,.6); margin: auto;
   }
@@ -571,7 +671,7 @@
     transition: border-color .15s, background .15s;
   }
   .format-opt:hover { background: rgba(255,255,255,.09); }
-  .format-opt.active { border-color: var(--gold); background: rgba(201,162,75,.12); }
+  .format-opt.active { border-color: var(--gold); background: rgba(139,124,246,.12); }
   .format-mini { display: grid; gap: 2px; width: 46px; margin: 0 auto 8px; }
   .format-mini span { background: rgba(255,255,255,.35); border-radius: 1px; aspect-ratio: 6.3/8.8; }
   .format-opt.active .format-mini span { background: var(--gold); }
@@ -581,7 +681,7 @@
   .start-namerow { display: flex; gap: 10px; margin-top: 14px; }
   .start-input {
     flex: 1; padding: 10px 12px; border-radius: 9px;
-    border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: #f4eede; font-size: 14px;
+    border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: #e7e8f2; font-size: 14px;
   }
   .start-input:focus { outline: 2px solid var(--gold); }
 
@@ -603,6 +703,44 @@
 
   /* Home-Button in der Toolbar */
   .home-btn { font-size: 16px; }
+
+  /* ---------- Sammlungs-Statistik in der Toolbar ---------- */
+  .stat-badge {
+    font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05);
+    white-space: nowrap;
+  }
+  .stat-owned   { color: #4ade80; border-color: rgba(74,222,128,.35); background: rgba(74,222,128,.1); }
+  .stat-missing { color: #f87171; border-color: rgba(248,113,113,.35); background: rgba(248,113,113,.1); }
+  .stat-value   { color: var(--gold); border-color: rgba(139,124,246,.35); background: rgba(139,124,246,.1); }
+
+  /* ---------- Karten-Suche (Crosslink zur Watchlist) ---------- */
+  .card-search-wrap { position: relative; }
+  .card-search {
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
+    color: #e7e8f2; border-radius: 8px; padding: 7px 10px; font-size: 13px; width: 180px;
+  }
+  .card-search:focus { outline: 2px solid var(--gold); }
+  .card-search-results {
+    position: absolute; top: calc(100% + 6px); left: 0; width: 270px;
+    background: rgba(22,20,32,.98); border: 1px solid rgba(139,124,246,.35);
+    border-radius: 10px; padding: 6px; z-index: 60; display: none;
+    box-shadow: 0 12px 30px rgba(0,0,0,.5); max-height: 340px; overflow-y: auto;
+  }
+  .card-search-results.open { display: block; }
+  .csr-item { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 7px; cursor: pointer; }
+  .csr-item:hover { background: rgba(255,255,255,.08); }
+  .csr-item img { width: 30px; height: 42px; object-fit: cover; border-radius: 4px; flex: none; }
+  .csr-item .csr-name { flex: 1; font-size: 13px; font-weight: 600; }
+  .csr-item .csr-page { font-size: 11px; opacity: .55; white-space: nowrap; }
+  .csr-empty { padding: 10px; font-size: 12px; opacity: .5; text-align: center; }
+
+  /* Kurzes Aufleuchten der Zielkarte nach einem Sprung (Suche / Watchlist-Link) */
+  @keyframes slotHighlightPulse {
+    0%, 100% { box-shadow: 0 0 0 3px var(--gold), 0 0 22px rgba(139,124,246,.7); }
+    50% { box-shadow: 0 0 0 3px var(--gold), 0 0 6px rgba(139,124,246,.25); }
+  }
+  .slot.search-highlight { animation: slotHighlightPulse 0.9s ease-in-out 3; }
 </style>
 </head>
 <body>
@@ -610,7 +748,9 @@
   <!-- ===================== TOOLBAR ===================== -->
   <div class="toolbar">
     <div class="brand">
-      <button class="btn home-btn" id="homeBtn" title="Startseite / neue Collection">🏠</button>
+      <button class="btn icon-only home-btn" id="homeBtn" title="Startseite / neue Collection">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
+      </button>
       <span class="emblem">TCG</span>
       TCG&nbsp;Binder
     </div>
@@ -621,30 +761,51 @@
         <button id="langDE">DE</button>
         <button id="langEN">EN</button>
       </div>
-      <div class="seg" title="Wie Bilder ins Kartenfeld eingepasst werden">
-        <button id="fitCover" class="active">Füllen</button>
-        <button id="fitContain">Ganz zeigen</button>
+      <div class="seg icon-seg" title="Wie Bilder ins Kartenfeld eingepasst werden">
+        <button id="fitCover" class="active" title="Füllen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+        <button id="fitContain" title="Ganz zeigen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        </button>
       </div>
       <div class="seg" title="Währung für Preise">
         <button id="curEUR" class="active">€</button>
         <button id="curUSD">$</button>
       </div>
-      <div class="seg" title="Karten farbig markieren (grün = habe ich, rot = fehlt)">
-        <button id="markOff" class="active">Markieren aus</button>
-        <button id="markOn">an</button>
-      </div>
-      <div class="seg" title="Preise + Gesamtsumme im Bild-Export anzeigen">
-        <button id="exportPricesOff" class="active">Preise im Export aus</button>
-        <button id="exportPricesOn">an</button>
-      </div>
+      <button class="icon-switch" id="markToggle" role="switch" aria-checked="false" title="Karten farbig markieren (grün = habe ich, rot = fehlt)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+      </button>
+      <button class="icon-switch" id="exportPricesToggle" role="switch" aria-checked="false" title="Preise + Gesamtsumme im Bild-Export anzeigen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2h.5a2.5 2.5 0 0 0 0-5h-1a2.5 2.5 0 0 1 0-5h.5a2.5 2.5 0 0 1 2.5 2"/><path d="M12 6v2m0 8v2"/></svg>
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+      </button>
+    </div>
+
+    <div class="toolbar-group" id="statsGroup">
+      <span class="stat-badge stat-owned" id="statOwned" title="Besessene Karten">✓ 0</span>
+      <span class="stat-badge stat-missing" id="statMissing" title="Fehlende Karten">✕ 0</span>
+      <span class="stat-badge stat-value" id="statValue" title="Gesamtwert">Σ 0,00 €</span>
+    </div>
+
+    <div class="card-search-wrap" id="cardSearchWrap">
+      <input type="text" id="cardSearchInput" class="card-search" placeholder="Karte suchen…" autocomplete="off">
+      <div class="card-search-results" id="cardSearchResults"></div>
     </div>
 
     <div class="spacer"></div>
 
     <!-- Aktionen (rechts) -->
     <div class="toolbar-group">
+      <button class="btn icon-only" id="undoBtn" title="Rückgängig (Strg+Z)" disabled>↶</button>
+      <button class="btn icon-only" id="watchBtn" title="Watchlist / Preisbeobachtung">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m23 6-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>
+      </button>
       <div class="menu-wrap">
-        <button class="btn" id="moreBtn" title="Weitere Optionen">⚙ Mehr ▾</button>
+        <button class="btn icon-only" id="moreBtn" title="Weitere Optionen">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+        </button>
         <div class="menu" id="moreMenu">
           <button class="menu-item" id="appBgBtn">🌄 Hintergrund ändern</button>
           <button class="menu-item" id="appBgResetBtn">↺ Hintergrund zurücksetzen</button>
@@ -654,8 +815,13 @@
           <button class="menu-item" id="exportLogoClearBtn">✕ Logo/Name entfernen</button>
         </div>
       </div>
-      <button class="btn" id="importBtn">Importieren</button>
-      <button class="btn primary" id="exportBtn">Exportieren</button>
+      <button class="btn icon-only" id="importBtn" title="Importieren">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/></svg>
+      </button>
+      <button class="btn primary with-icon" id="exportBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        <span id="exportBtnLabel">Exportieren</span>
+      </button>
     </div>
   </div>
 
@@ -673,7 +839,11 @@
 
       <!-- Ablage-Bank -->
       <div class="bench" id="bench">
-        <div class="bench-title">Ablage</div>
+        <div class="bench-head">
+          <div class="bench-title">Ablage</div>
+          <div class="bench-count" id="benchCount"></div>
+          <button class="bench-clear" id="benchClearBtn" title="Ablage leeren">Leeren</button>
+        </div>
         <div class="bench-row" id="benchRow"><!-- per JS --></div>
       </div>
     </div>
@@ -708,7 +878,34 @@
 
   <div class="toast" id="toast"></div>
 
-  <!-- ===================== STARTSCREEN ===================== -->
+  <!-- ===================== WATCHLIST ===================== -->
+  <div class="watchlist" id="watchlist">
+    <div class="wl-head">
+      <div class="wl-title" id="wlTitle">📈 Watchlist</div>
+      <div class="wl-actions">
+        <div class="seg" title="Sprache / Language">
+          <button id="wlLangDE">DE</button>
+          <button id="wlLangEN">EN</button>
+        </div>
+        <div class="seg" title="Währung für Preise">
+          <button id="wlCurEUR">€</button>
+          <button id="wlCurUSD">$</button>
+        </div>
+        <input type="text" id="wlSearchInput" class="wl-search" placeholder="Suchen…">
+        <button class="btn" id="wlAddCheck">+ Preis-Check</button>
+        <button class="btn" id="wlCsvBtn">CSV</button>
+        <button class="btn" id="wlJsonBtn" title="Watchlist als JSON exportieren">JSON ⭳</button>
+        <button class="btn" id="wlJsonImportBtn" title="Watchlist aus JSON importieren">JSON ⭱</button>
+        <input type="file" id="wlJsonImportFile" class="hidden" accept="application/json,.json">
+        <button class="btn" id="wlClose">✕</button>
+      </div>
+    </div>
+    <div class="wl-total" id="wlTotal"></div>
+    <div class="wl-tablewrap">
+      <table class="wl-table" id="wlTable"><!-- per JS --></table>
+      <div class="wl-empty" id="wlEmpty"></div>
+    </div>
+  </div>
   <div class="startscreen" id="startScreen">
     <div class="start-card">
       <div class="start-brand"><span class="emblem">TCG</span> TCG Binder</div>
@@ -754,6 +951,8 @@ const TEXTS = {
     logoClear: "✕ Logo/Name entfernen",
     importBtn: "Importieren", exportBtn: "Exportieren",
     bench: "Ablage",
+    benchClear: "Leeren", benchClearTitle: "Ablage leeren",
+    benchCleared: "Ablage geleert.", benchEmptyAlready: "Ablage ist bereits leer.",
     pagesTitle: "Seiten",
     prev: "‹ Zurück", next: "Vor ›", addPage: "+ Seite",
     pageColView: "Klicken, um zu einer Seite zu springen",
@@ -810,6 +1009,25 @@ const TEXTS = {
     pageDeleted: "Seite gelöscht.",
     formatCap: (n) => n + " Karten/Seite",
     editHint: "Klicken zum Bearbeiten",
+    undone: "Rückgängig gemacht.", nothingUndo: "Nichts rückgängig zu machen.", undoTitle: "Rückgängig (Strg+Z)",
+    wlTitle: "📈 Watchlist", wlBuy: "Einkauf", wlName: "Name", wlLang: "Sprache",
+    wlCard: "Karte", wlDiff: "Differenz", wlAddCheck: "+ Preis-Check", wlTotal: "Gesamtwert: ",
+    wlEmpty: "Noch keine besessenen Karten. Markiere Karten im Ordner als 'habe ich' (grün).",
+    wlNamePh: "Kartenname", wlCheckPrompt: "Datum des Preis-Checks (JJJJ-MM-TT):",
+    wlColSum: "Summe", wlQty: "Anzahl", wlSearchPh: "Nach Name suchen…", wlEach: "Stück", wlSumRow: "Σ",
+    langEnglish: "Englisch", langGerman: "Deutsch", langJapanese: "Japanisch",
+    langKorean: "Koreanisch", langChinese: "Chinesisch",
+    cardSearchPh: "Karte suchen…", searchNoMatch: "Keine Treffer.",
+    statOwnedTitle: "Besessene Karten", statMissingTitle: "Fehlende Karten", statValueTitle: "Gesamtwert der Sammlung",
+    wlJumpTitle: "Zur Karte im Ordner springen",
+    csvExport: "CSV", csvExportTitle: "Watchlist als CSV exportieren", csvExported: "Watchlist als CSV exportiert.",
+    csvNoData: "Keine Daten zum Exportieren.",
+    backupReminder: "Lange nicht mehr exportiert – sichere deine Sammlung als Backup.",
+    wlJsonExport: "JSON ⭳", wlJsonExportTitle: "Watchlist als JSON exportieren (Namen, Preise, Preis-Checks)",
+    wlJsonImport: "JSON ⭱", wlJsonImportTitle: "Watchlist aus JSON importieren (mit bestehenden Karten abgleichen)",
+    wlJsonExported: "Watchlist als JSON exportiert.", wlJsonImported: (n) => n + " Watchlist-Einträge importiert.",
+    wlJsonImportFail: "Import fehlgeschlagen: keine gültige Watchlist-Datei.",
+    watchBtnTitle: "Watchlist / Preisbeobachtung", moreBtnTitle: "Weitere Optionen",
   },
   en: {
     brandSub: "· your digital binder",
@@ -822,6 +1040,8 @@ const TEXTS = {
     logoClear: "✕ Remove logo/name",
     importBtn: "Import", exportBtn: "Export",
     bench: "Tray",
+    benchClear: "Clear", benchClearTitle: "Clear tray",
+    benchCleared: "Tray cleared.", benchEmptyAlready: "Tray is already empty.",
     pagesTitle: "Pages",
     prev: "‹ Back", next: "Next ›", addPage: "+ Page",
     pageColView: "Click to jump to a page",
@@ -877,6 +1097,25 @@ const TEXTS = {
     pageDeleted: "Page deleted.",
     formatCap: (n) => n + " cards/page",
     editHint: "Click to edit",
+    undone: "Undone.", nothingUndo: "Nothing to undo.", undoTitle: "Undo (Ctrl+Z)",
+    wlTitle: "📈 Watchlist", wlBuy: "Buy", wlName: "Name", wlLang: "Language",
+    wlCard: "Card", wlDiff: "Difference", wlAddCheck: "+ Price check", wlTotal: "Total value: ",
+    wlEmpty: "No owned cards yet. Mark cards in the binder as 'owned' (green).",
+    wlNamePh: "Card name", wlCheckPrompt: "Date of the price check (YYYY-MM-DD):",
+    wlColSum: "Sum", wlQty: "Qty", wlSearchPh: "Search by name…", wlEach: "each", wlSumRow: "Σ",
+    langEnglish: "English", langGerman: "German", langJapanese: "Japanese",
+    langKorean: "Korean", langChinese: "Chinese",
+    cardSearchPh: "Search card…", searchNoMatch: "No matches.",
+    statOwnedTitle: "Owned cards", statMissingTitle: "Missing cards", statValueTitle: "Total collection value",
+    wlJumpTitle: "Jump to this card in the binder",
+    csvExport: "CSV", csvExportTitle: "Export watchlist as CSV", csvExported: "Watchlist exported as CSV.",
+    csvNoData: "No data to export.",
+    backupReminder: "Haven't exported in a while – back up your collection.",
+    wlJsonExport: "JSON ⭳", wlJsonExportTitle: "Export watchlist as JSON (names, prices, price checks)",
+    wlJsonImport: "JSON ⭱", wlJsonImportTitle: "Import watchlist from JSON (matched against existing cards)",
+    wlJsonExported: "Watchlist exported as JSON.", wlJsonImported: (n) => n + " watchlist entries imported.",
+    wlJsonImportFail: "Import failed: not a valid watchlist file.",
+    watchBtnTitle: "Watchlist / price tracking", moreBtnTitle: "More options",
   }
 };
 
@@ -897,7 +1136,7 @@ function detectLang() {
    ========================================================================== */
 
 let SLOTS_PER_PAGE = 9;   // wird aus state.cols*state.rows aktualisiert
-const BENCH_SIZE = 8;
+const BENCH_SIZE = 12;
 const STORAGE_KEY = "pokemon-binder-v2";
 
 let state = {
@@ -938,6 +1177,8 @@ const INDEX_KEY = "tcg-binder-collections";
 const COL_PREFIX = "tcg-binder-col:";
 const LAST_KEY = "tcg-binder-last";
 const LANG_KEY = "tcg-binder-lang";
+const LAST_EXPORT_KEY = "tcg-binder-last-export";
+const BACKUP_REMINDER_DAYS = 7;
 
 let currentId = null;   // id der aktuell geöffneten Collection (null = keine)
 
@@ -959,7 +1200,7 @@ function freshState(cols, rows, name) {
     coverTitle: "My Collection", coverSub: t("coverSubtitle"),
     owned: {}, appBg: null, prices: {}, currency: "EUR",
     showPricesInExport: false, exportLogo: null, exportName: "",
-    lang: lang, cols: cols, rows: rows, name: name || "Collection",
+    lang: lang, cols: cols, rows: rows, name: name || "Collection", watch: {},
   };
 }
 
@@ -982,6 +1223,106 @@ function save() {
   } catch (e) { toast(t("storageFull")); console.warn(e); }
 }
 
+/* ============================================================================
+   UNDO-SYSTEM
+   ----------------------------------------------------------------------------
+   Vor jeder verändernden Aktion (Löschen, Verschieben, Tauschen, Seite löschen)
+   wird ein Snapshot der relevanten Zustandsteile abgelegt. Undo stellt den
+   letzten Snapshot wieder her. Stack ist auf 30 Schritte begrenzt.
+   ========================================================================== */
+const UNDO_LIMIT = 30;
+let undoStack = [];
+
+function snapshot() {
+  return JSON.stringify({
+    slots: state.slots, bench: state.bench, pageBg: state.pageBg,
+    prices: state.prices, owned: state.owned, pages: state.pages,
+    spread: state.spread, cols: state.cols, rows: state.rows,
+    watch: state.watch,
+  });
+}
+function pushUndo() {
+  undoStack.push(snapshot());
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  updateUndoBtn();
+}
+function doUndo() {
+  if (!undoStack.length) return;
+  const snap = JSON.parse(undoStack.pop());
+  Object.assign(state, snap);
+  normalize(); save(); render();
+  toast(t("undone"));
+  updateUndoBtn();
+}
+function updateUndoBtn() {
+  const btn = document.getElementById("undoBtn");
+  if (btn) btn.disabled = undoStack.length === 0;
+}
+
+/* ============================================================================
+   WATCHLIST / PREISBEOBACHTUNG
+   ----------------------------------------------------------------------------
+   Enthält alle BESESSENEN Karten (grün / nicht "missing"). Verknüpfung mit dem
+   Ordner über einen kurzen Hash des Bild-Strings (stabil gegen Verschieben).
+   Eintrag: state.watch[key] = { name, lang, buyPrice, checks:[{date, price}] }
+   Der jeweils NEUESTE Check-Preis wird automatisch als Ordnerpreis übernommen.
+   ========================================================================== */
+// Alter (grob gestreuter) Hash — nur noch für die einmalige Migration alter
+// gespeicherter Watchlist-Einträge auf den neuen, kollisionssicheren imgKey().
+function imgKeyLegacy(dataUrl) {
+  let h = 5381;
+  for (let i = 0; i < dataUrl.length; i += 7) h = ((h << 5) + h + dataUrl.charCodeAt(i)) >>> 0;
+  return "k" + h.toString(36) + "_" + dataUrl.length;
+}
+function imgKey(dataUrl) {
+  // Zwei unabhängige Hashes über den GESAMTEN String (nicht nur Stichproben),
+  // damit unterschiedliche Bilder garantiert nicht fälschlich zusammengelegt werden.
+  let h1 = 0x811c9dc5, h2 = 5381;
+  for (let i = 0; i < dataUrl.length; i++) {
+    const c = dataUrl.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;   // FNV-1a
+    h2 = ((h2 << 5) + h2 + c) >>> 0;             // djb2
+  }
+  return "k" + h1.toString(36) + "_" + h2.toString(36) + "_" + dataUrl.length;
+}
+function ownedCards() {
+  const map = new Map();   // key -> {key, img, slot (erster), count}
+  const total = state.pages * SLOTS_PER_PAGE;
+  for (let i = 0; i < total; i++) {
+    const img = state.slots[i];
+    if (!img) continue;
+    if (state.owned[i] === "missing") continue;
+    const key = imgKey(img);
+    if (map.has(key)) { map.get(key).count++; }
+    else map.set(key, { key, img, slot: i, count: 1 });
+  }
+  return [...map.values()];
+}
+function syncWatch() {
+  ownedCards().forEach(c => {
+    if (!state.watch[c.key]) state.watch[c.key] = { name: "", lang: "en", buyPrice: null, checks: [] };
+  });
+}
+function latestCheckPrice(w) {
+  if (!w || !Array.isArray(w.checks) || !w.checks.length) return null;
+  for (let i = w.checks.length - 1; i >= 0; i--) {
+    const p = w.checks[i].price;
+    if (p != null && !isNaN(p)) return Number(p);
+  }
+  return null;
+}
+function applyWatchPricesToBinder() {
+  const total = state.pages * SLOTS_PER_PAGE;
+  for (let i = 0; i < total; i++) {
+    const img = state.slots[i];
+    if (!img) continue;
+    const w = state.watch[imgKey(img)];
+    if (!w) continue;
+    const latest = latestCheckPrice(w);
+    if (latest != null) state.prices[i] = latest;
+  }
+}
+
 /* Eine Collection per id öffnen */
 function openCollection(id) {
   try {
@@ -989,19 +1330,32 @@ function openCollection(id) {
     if (!raw) { toast(t("importFail")); return false; }
     state = JSON.parse(raw);
     currentId = id;
+    undoStack = [];
     normalize();
     if (state.lang === "de" || state.lang === "en") setLang(state.lang, false);
     hideStartScreen();
     applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyMarkSeg();
     render();
+    maybeShowBackupReminder();
     return true;
   } catch (e) { toast(t("importFail")); console.warn(e); return false; }
+}
+
+/* Sanfte Erinnerung, falls die Sammlung Karten enthält, aber lange kein JSON-Backup mehr erstellt wurde. */
+function maybeShowBackupReminder() {
+  if (!state.slots.some(Boolean)) return;
+  const last = Number(localStorage.getItem(LAST_EXPORT_KEY) || 0);
+  const days = (Date.now() - last) / (1000 * 60 * 60 * 24);
+  if (!last || days >= BACKUP_REMINDER_DAYS) {
+    setTimeout(() => toast(t("backupReminder")), 900);
+  }
 }
 
 /* Neue Collection anlegen und öffnen */
 function createCollection(cols, rows, name) {
   currentId = newId();
   state = freshState(cols, rows, name);
+  undoStack = [];
   normalize();
   save();
   hideStartScreen();
@@ -1030,8 +1384,26 @@ function normalize() {
   state.bench.length = BENCH_SIZE;
   if (!state.pageBg || typeof state.pageBg !== "object") state.pageBg = {};
   if (!state.owned || typeof state.owned !== "object") state.owned = {};
+  if (!state.watch || typeof state.watch !== "object") state.watch = {};
   if (!state.prices || typeof state.prices !== "object") state.prices = {};
   if (state.currency !== "USD" && state.currency !== "EUR") state.currency = "EUR";
+  migrateWatchKeys();
+}
+
+/* Einmalige Migration: alte, grob-gehashte Watchlist-Keys (vor der Kollisionsfix)
+   auf den neuen imgKey() umschlüsseln, damit Namen/Preise nicht verloren gehen. */
+function migrateWatchKeys() {
+  const allImgs = [...state.slots, ...state.bench].filter(Boolean);
+  const seen = new Set();
+  for (const img of allImgs) {
+    const legacy = imgKeyLegacy(img);
+    if (seen.has(legacy)) continue;
+    seen.add(legacy);
+    if (state.watch[legacy] && !state.watch[imgKey(img)]) {
+      state.watch[imgKey(img)] = state.watch[legacy];
+      delete state.watch[legacy];
+    }
+  }
 }
 
 /* ---- Karten-Zugriff über LOCATION-ID ---- */
@@ -1087,6 +1459,7 @@ function editPrice(slotIndex) {
 function duplicateCard(loc) {
   const img = getCard(loc);
   if (!img) return;
+  pushUndo();
 
   const total = state.pages * SLOTS_PER_PAGE;
   const startIdx = loc.startsWith("slot:") ? (+loc.split(":")[1] + 1) : 0;
@@ -1160,6 +1533,26 @@ function render() {
   updatePager();
   applyFitClass();
   fitBinder();
+  updateUndoBtn();
+  updateStats();
+}
+
+/* Kompakte Sammlungs-Statistik in der Toolbar (besessen / fehlend / Gesamtwert) */
+function updateStats() {
+  const total = state.pages * SLOTS_PER_PAGE;
+  let owned = 0, missing = 0, value = 0;
+  for (let i = 0; i < total; i++) {
+    const img = state.slots[i];
+    if (!img) continue;
+    if (state.owned[i] === "missing") { missing++; continue; }
+    owned++;
+    const p = state.prices[i];
+    if (p != null && !isNaN(p)) value += Number(p);
+  }
+  const so = document.getElementById("statOwned"), sm = document.getElementById("statMissing"), sv = document.getElementById("statValue");
+  if (so) so.textContent = "✓ " + owned;
+  if (sm) sm.textContent = "✕ " + missing;
+  if (sv) sv.textContent = "Σ " + formatPrice(value);
 }
 
 /* Setzt CSS-Variablen für das aktuelle Rasterformat (Spalten/Zeilen) und
@@ -1304,7 +1697,261 @@ function makePage(pageIndex, sideClass) {
 function renderBench() {
   benchRow.innerHTML = "";
   for (let i = 0; i < BENCH_SIZE; i++) benchRow.appendChild(makeSlot("bench:" + i));
+  const used = state.bench.filter(Boolean).length;
+  const countEl = document.getElementById("benchCount");
+  if (countEl) countEl.textContent = used + " / " + BENCH_SIZE;
+  const clearBtn = document.getElementById("benchClearBtn");
+  if (clearBtn) clearBtn.disabled = used === 0;
 }
+
+/* ============================================================================
+   WATCHLIST-RENDERING
+   ========================================================================== */
+function langOptions() {
+  return [
+    { v: "en", l: t("langEnglish") }, { v: "de", l: t("langGerman") },
+    { v: "ja", l: t("langJapanese") }, { v: "ko", l: t("langKorean") },
+    { v: "zh", l: t("langChinese") },
+  ];
+}
+// Ansicht-Zustand der Watchlist (nicht gespeichert)
+let wlSort = { by: null, dir: 1 };   // by: name|count|buy|check:<date> ; dir: 1 asc, -1 desc
+let wlSearch = "";
+let wlColWidths = {};   // Spaltenbreiten (px), keyed per Spalte, bleiben über renderWatchlist()-Aufrufe erhalten
+
+// Alle unterschiedlichen Check-Daten über alle Karten (als Spalten)
+function allCheckDates() {
+  const set = new Set();
+  Object.values(state.watch).forEach(w => (w.checks || []).forEach(c => set.add(c.date)));
+  return [...set].sort();
+}
+
+function openWatchlist() {
+  syncWatch();
+  applyWatchPricesToBinder();
+  save();
+  renderWatchlist();
+  document.getElementById("watchlist").classList.add("open");
+}
+function closeWatchlist() {
+  document.getElementById("watchlist").classList.remove("open");
+  render();   // Ordner mit ggf. aktualisierten Preisen neu zeichnen
+}
+
+function renderWatchlist() {
+  const table = document.getElementById("wlTable");
+  const empty = document.getElementById("wlEmpty");
+  let cards = ownedCards();
+  const dates = allCheckDates();
+
+  // Suche nach Name (bzw. leerem Namen ignorieren)
+  const q = (wlSearch || "").trim().toLowerCase();
+  if (q) cards = cards.filter(c => ((state.watch[c.key].name || "").toLowerCase().includes(q)));
+
+  if (!cards.length) {
+    table.innerHTML = ""; empty.style.display = "block";
+    empty.textContent = q ? "—" : t("wlEmpty");
+    document.getElementById("wlTotal").textContent = "";
+    return;
+  }
+  empty.style.display = "none";
+
+  // Sortierung anwenden
+  const val = (c, by) => {
+    const w = state.watch[c.key];
+    if (by === "name") return (w.name || "").toLowerCase();
+    if (by === "count") return c.count;
+    if (by === "buy") return w.buyPrice != null ? w.buyPrice : -Infinity;
+    if (by && by.startsWith("check:")) {
+      const d = by.slice(6);
+      const ex = (w.checks || []).find(ch => ch.date === d);
+      return ex && ex.price != null ? ex.price : -Infinity;
+    }
+    return 0;
+  };
+  cards.sort((a, b) => {
+    const va = val(a, wlSort.by), vb = val(b, wlSort.by);
+    if (va < vb) return -1 * wlSort.dir;
+    if (va > vb) return 1 * wlSort.dir;
+    return 0;
+  });
+
+  // Preiszelle mit Einzel- und Gesamtpreis (× Anzahl)
+  const priceCell = (single, count) => {
+    const wrap = document.createElement("div");
+    if (single == null || isNaN(single)) return wrap;
+    const total = document.createElement("div");
+    total.className = "wl-total-line";
+    total.innerHTML = "×" + count + " = <b>" + formatPrice(single * count) + "</b>";
+    wrap.appendChild(total);
+    return wrap;
+  };
+
+  // sortierbare Kopfzelle
+  const arrow = (by) => wlSort.by === by ? (wlSort.dir === 1 ? " ▲" : " ▼") : "";
+  const makeSortableTh = (label, by) => {
+    const colKey = by;
+    const th = document.createElement("th");
+    th.className = "wl-th-sort";
+    if (wlColWidths[colKey]) th.style.width = wlColWidths[colKey] + "px";
+    const wrap = document.createElement("div"); wrap.className = "wl-th-wrap";
+    const span = document.createElement("span"); span.textContent = label;
+    const arr = document.createElement("span"); arr.className = "wl-arrow"; arr.textContent = arrow(by);
+    wrap.appendChild(span); wrap.appendChild(arr);
+    th.appendChild(wrap);
+    th.addEventListener("click", (e) => {
+      if (e.target.classList.contains("wl-resizer")) return;
+      if (wlSort.by === by) wlSort.dir *= -1; else { wlSort.by = by; wlSort.dir = 1; }
+      renderWatchlist();
+    });
+    addResizer(th, colKey);
+    return th;
+  };
+  const makePlainTh = (label, colKey) => {
+    const th = document.createElement("th");
+    if (wlColWidths[colKey]) th.style.width = wlColWidths[colKey] + "px";
+    const wrap = document.createElement("div"); wrap.className = "wl-th-wrap";
+    const span = document.createElement("span"); span.textContent = label; wrap.appendChild(span);
+    th.appendChild(wrap); addResizer(th, colKey); return th;
+  };
+
+  // Kopfzeile bauen
+  const thead = document.createElement("thead");
+  const htr = document.createElement("tr");
+  htr.appendChild(makePlainTh(t("wlCard"), "card"));
+  htr.appendChild(makeSortableTh(t("wlName"), "name"));
+  htr.appendChild(makePlainTh(t("wlLang"), "lang"));
+  htr.appendChild(makeSortableTh(t("wlQty"), "count"));
+  htr.appendChild(makeSortableTh(t("wlBuy"), "buy"));
+  dates.forEach(d => htr.appendChild(makeSortableTh(d, "check:" + d)));
+  htr.appendChild(makePlainTh(t("wlDiff"), "diff"));
+  thead.appendChild(htr);
+
+  // Zeilen
+  const tbody = document.createElement("tbody");
+  let totalLatest = 0, totalBuy = 0;
+  const colSums = {}; dates.forEach(d => colSums[d] = 0);
+  let qtyTotal = 0;
+
+  cards.forEach(c => {
+    const w = state.watch[c.key];
+    const tr = document.createElement("tr");
+    qtyTotal += c.count;
+
+    // Bild
+    const tdImg = document.createElement("td");
+    const im = document.createElement("img"); im.className = "wl-img"; im.src = c.img; im.title = t("wlJumpTitle");
+    im.addEventListener("click", () => { closeWatchlist(); jumpToCardSlot(c.slot); });
+    tdImg.appendChild(im);
+    tr.appendChild(tdImg);
+
+    // Name
+    const tdName = document.createElement("td");
+    const nameIn = document.createElement("input");
+    nameIn.className = "wl-name-input"; nameIn.value = w.name || ""; nameIn.placeholder = t("wlNamePh");
+    nameIn.addEventListener("change", () => { w.name = nameIn.value; save(); });
+    tdName.appendChild(nameIn); tr.appendChild(tdName);
+
+    // Sprache
+    const tdLang = document.createElement("td");
+    const sel = document.createElement("select"); sel.className = "wl-lang-select";
+    langOptions().forEach(o => { const opt = document.createElement("option"); opt.value = o.v; opt.textContent = o.l; if (w.lang === o.v) opt.selected = true; sel.appendChild(opt); });
+    sel.addEventListener("change", () => { w.lang = sel.value; save(); });
+    tdLang.appendChild(sel); tr.appendChild(tdLang);
+
+    // Anzahl
+    const tdQty = document.createElement("td");
+    tdQty.innerHTML = "<b>×" + c.count + "</b>";
+    tr.appendChild(tdQty);
+
+    // Einkaufspreis (Einzel + Gesamt)
+    const tdBuy = document.createElement("td");
+    const buyIn = document.createElement("input");
+    buyIn.className = "wl-price-input"; buyIn.type = "text";
+    buyIn.value = w.buyPrice != null ? w.buyPrice : "";
+    buyIn.addEventListener("change", () => {
+      const v = parseFloat((buyIn.value || "").replace(",", "."));
+      w.buyPrice = isNaN(v) ? null : Math.round(v * 100) / 100;
+      save(); renderWatchlist();
+    });
+    tdBuy.appendChild(buyIn);
+    tdBuy.appendChild(priceCell(w.buyPrice, c.count));
+    tr.appendChild(tdBuy);
+    if (w.buyPrice != null) totalBuy += w.buyPrice * c.count;
+
+    // Check-Spalten (Einzel + Gesamt)
+    dates.forEach(d => {
+      const td = document.createElement("td");
+      const inp = document.createElement("input");
+      inp.className = "wl-price-input"; inp.type = "text";
+      const ex = (w.checks || []).find(ch => ch.date === d);
+      inp.value = ex && ex.price != null ? ex.price : "";
+      inp.addEventListener("change", () => {
+        const v = parseFloat((inp.value || "").replace(",", "."));
+        let arr = w.checks || (w.checks = []);
+        const existing = arr.find(ch => ch.date === d);
+        if (isNaN(v)) { if (existing) w.checks = arr.filter(ch => ch.date !== d); }
+        else { if (existing) existing.price = Math.round(v * 100) / 100; else arr.push({ date: d, price: Math.round(v * 100) / 100 }); }
+        applyWatchPricesToBinder(); save(); renderWatchlist();
+      });
+      td.appendChild(inp);
+      const price = ex && ex.price != null ? Number(ex.price) : null;
+      td.appendChild(priceCell(price, c.count));
+      if (price != null) colSums[d] += price * c.count;
+      tr.appendChild(td);
+    });
+
+    // Differenz (neuester Check vs Einkauf, pro Stück) + Gesamt
+    const tdDiff = document.createElement("td");
+    const latest = latestCheckPrice(w);
+    if (latest != null) totalLatest += latest * c.count;
+    if (latest != null && w.buyPrice != null) {
+      const diff = latest - w.buyPrice;
+      tdDiff.innerHTML = "<span class='" + (diff > 0 ? "wl-diff-pos" : diff < 0 ? "wl-diff-neg" : "wl-diff-zero") + "'>" +
+        (diff >= 0 ? "+" : "") + formatPrice(diff) + "</span>" +
+        "<div class='wl-total-line'>×" + c.count + " = <b>" + (diff >= 0 ? "+" : "") + formatPrice(diff * c.count) + "</b></div>";
+    } else { tdDiff.textContent = "–"; tdDiff.className = "wl-diff-zero"; }
+    tr.appendChild(tdDiff);
+
+    tbody.appendChild(tr);
+  });
+
+  // Summenzeile
+  const trSum = document.createElement("tr");
+  let sumCells = "<td class='wl-colsum' colspan='3'>" + t("wlColSum") + "</td>";
+  sumCells += "<td class='wl-colsum'>×" + qtyTotal + "</td>";
+  sumCells += "<td class='wl-colsum'>" + formatPrice(totalBuy) + "</td>";
+  dates.forEach(d => { sumCells += "<td class='wl-colsum'>" + formatPrice(colSums[d]) + "</td>"; });
+  sumCells += "<td></td>";
+  trSum.innerHTML = sumCells;
+  tbody.appendChild(trSum);
+
+  table.innerHTML = "";
+  table.appendChild(thead);
+  table.appendChild(tbody);
+
+  document.getElementById("wlTotal").textContent = t("wlTotal") + formatPrice(totalLatest || totalBuy);
+}
+
+/* Spaltenbreite per Ziehen am rechten Rand einer Kopfzelle */
+function addResizer(th, colKey) {
+  const rz = document.createElement("div");
+  rz.className = "wl-resizer";
+  rz.addEventListener("mousedown", (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const startX = e.clientX;
+    const startW = th.offsetWidth;
+    const move = (ev) => {
+      const w = Math.max(48, startW + (ev.clientX - startX));
+      th.style.width = w + "px";
+      if (colKey) wlColWidths[colKey] = w;
+    };
+    const up = () => { document.removeEventListener("mousemove", move); document.removeEventListener("mouseup", up); };
+    document.addEventListener("mousemove", move); document.addEventListener("mouseup", up);
+  });
+  th.appendChild(rz);
+}
+
 
 /* ============================================================================
    VORSCHAU-LEISTE (rechts): Mini-Abbild jeder Doppelseiten-Ansicht.
@@ -1362,6 +2009,7 @@ function makePvPage(pageIndex) {
 /* Eine einzelne Karten-Seite löschen (Karten, Hintergrund, Preise, Status).
    Alle nachfolgenden Seiten rücken auf. */
 function deletePage(pageIndex) {
+  pushUndo();
   const per = SLOTS_PER_PAGE;
   // Slots der Seite herausschneiden
   state.slots.splice(pageIndex * per, per);
@@ -1446,6 +2094,7 @@ let pvDragSpread = null;
 /* Tauscht die kompletten Inhalte zweier Doppelseiten (Karten, Hintergründe,
    Markierungen). Arbeitet seitenweise über die Karten-Seitenindizes. */
 function swapSpreads(a, b) {
+  pushUndo();
   const ia = pageIndicesForSpread(a), ib = pageIndicesForSpread(b);
   // paarweise tauschen (linke<->linke, rechte<->rechte)
   const n = Math.max(ia.length, ib.length);
@@ -1522,6 +2171,7 @@ function makeSlot(loc) {
     del.className = "del"; del.textContent = "✕"; del.title = t("delCard");
     del.addEventListener("click", (e) => {
       e.stopPropagation();
+      pushUndo();
       setCard(loc, null);
       if (isBinderSlot) { delete state.prices[slotIndex]; delete state.owned[slotIndex]; }
       save(); render();
@@ -1612,6 +2262,7 @@ function attachDragAndDrop(slot, loc) {
     if (e.dataTransfer.files && e.dataTransfer.files.length) {
       const file = e.dataTransfer.files[0];
       if (file && file.type.startsWith("image/")) {
+        pushUndo();
         setCard(loc, await compressImage(file)); save(); render();
       }
       return;
@@ -1619,6 +2270,7 @@ function attachDragAndDrop(slot, loc) {
     // vorhandene Karte verschieben/tauschen
     const src = dragSourceLoc || e.dataTransfer.getData("text/plain");
     if (src && src !== loc) {
+      pushUndo();
       const a = getCard(src), b = getCard(loc);
       setCard(loc, a); setCard(src, b);     // Bilder tauschen
       // Preise + Markierungen mittauschen, aber nur für Ordner-Felder
@@ -1717,6 +2369,80 @@ function goToPage(pageNumber) {
   save(); render();
   toast(t("jumpTo", p));
 }
+
+/* Zu einer Karte im Ordner springen (Crosslink Watchlist <-> Suche) und sie kurz hervorheben. */
+function jumpToCardSlot(slotIndex) {
+  const pageNum = Math.floor(slotIndex / SLOTS_PER_PAGE) + 1;
+  goToPage(pageNum);
+  const el = document.querySelector('.slot[data-loc="slot:' + slotIndex + '"]');
+  if (el) {
+    el.classList.remove("search-highlight"); void el.offsetWidth; // Animation neu triggern
+    el.classList.add("search-highlight");
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => el.classList.remove("search-highlight"), 2800);
+  }
+}
+
+/* Besessene Karten anhand des in der Watchlist eingetragenen Namens durchsuchen. */
+function searchOwnedCards(query) {
+  const q = (query || "").trim().toLowerCase();
+  if (!q) return [];
+  const total = state.pages * SLOTS_PER_PAGE;
+  const results = [];
+  const seenKeys = new Set();
+  for (const key in state.watch) {
+    const w = state.watch[key];
+    if (!w.name || !w.name.toLowerCase().includes(q)) continue;
+    if (seenKeys.has(key)) continue;
+    for (let i = 0; i < total; i++) {
+      const img = state.slots[i];
+      if (!img) continue;
+      if (state.owned[i] === "missing") continue;
+      if (imgKey(img) === key) { results.push({ key, name: w.name, img, slot: i }); seenKeys.add(key); break; }
+    }
+  }
+  return results.slice(0, 8);
+}
+
+const cardSearchInput = document.getElementById("cardSearchInput");
+const cardSearchResults = document.getElementById("cardSearchResults");
+const cardSearchWrap = document.getElementById("cardSearchWrap");
+function renderCardSearchResults() {
+  const q = cardSearchInput.value;
+  cardSearchResults.innerHTML = "";
+  if (!q.trim()) { cardSearchResults.classList.remove("open"); return; }
+  const results = searchOwnedCards(q);
+  if (!results.length) {
+    const empty = document.createElement("div");
+    empty.className = "csr-empty"; empty.textContent = t("searchNoMatch");
+    cardSearchResults.appendChild(empty);
+  } else {
+    results.forEach(r => {
+      const item = document.createElement("div"); item.className = "csr-item";
+      const im = document.createElement("img"); im.src = r.img; item.appendChild(im);
+      const name = document.createElement("div"); name.className = "csr-name"; name.textContent = r.name;
+      item.appendChild(name);
+      const page = document.createElement("div"); page.className = "csr-page";
+      page.textContent = t("page") + " " + (Math.floor(r.slot / SLOTS_PER_PAGE) + 1);
+      item.appendChild(page);
+      item.addEventListener("click", () => {
+        cardSearchResults.classList.remove("open");
+        cardSearchInput.value = "";
+        jumpToCardSlot(r.slot);
+      });
+      cardSearchResults.appendChild(item);
+    });
+  }
+  cardSearchResults.classList.add("open");
+}
+cardSearchInput.addEventListener("input", renderCardSearchResults);
+cardSearchInput.addEventListener("focus", renderCardSearchResults);
+document.addEventListener("click", (e) => {
+  if (!cardSearchWrap.contains(e.target)) cardSearchResults.classList.remove("open");
+});
+cardSearchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { cardSearchInput.value = ""; cardSearchResults.classList.remove("open"); cardSearchInput.blur(); }
+});
 
 function flip(direction) {
   const target = direction === "next" ? state.spread + 1 : state.spread - 1;
@@ -1823,20 +2549,30 @@ function applyLang() {
   const dEl = document.getElementById("langDE"), eEl = document.getElementById("langEN");
   if (dEl) dEl.classList.toggle("active", lang === "de");
   if (eEl) eEl.classList.toggle("active", lang === "en");
+  const wlDEl = document.getElementById("wlLangDE"), wlEEl = document.getElementById("wlLangEN");
+  if (wlDEl) wlDEl.classList.toggle("active", lang === "de");
+  if (wlEEl) wlEEl.classList.toggle("active", lang === "en");
 
-  // Toolbar
-  setText("fitCover", "fitCover"); setText("fitContain", "fitContain");
-  setText("markOff", "markOff"); setText("markOn", "markOn");
-  setText("exportPricesOff", "pricesExportOff"); setText("exportPricesOn", "pricesExportOn");
-  setText("moreBtn", "more");
+  // Toolbar (Icon-Buttons: nur title/Tooltip setzen, damit die SVGs nicht überschrieben werden)
+  setTitle("fitCover", "fitCover"); setTitle("fitContain", "fitContain");
+  setTitle("markToggle", markMode ? "markOnToast" : "markOffToast");
+  setTitle("exportPricesToggle", state.showPricesInExport ? "pricesOnToast" : "pricesOffToast");
+  setTitle("moreBtn", "moreBtnTitle");
   setText("appBgBtn", "bgChange"); setText("appBgResetBtn", "bgReset");
   setText("exportLogoBtn", "logoChoose"); setText("exportNameBtn", "nameChoose"); setText("exportLogoClearBtn", "logoClear");
-  setText("importBtn", "importBtn"); setText("exportBtn", "exportBtn");
+  setTitle("importBtn", "importBtn"); setText("exportBtnLabel", "exportBtn");
   // Pager
   setText("prevBtn", "prev"); setText("nextBtn", "next"); setText("addPageBtn", "addPage");
   // Vorschau / Bench
   const pvt = document.querySelector(".preview-rail-title"); if (pvt) pvt.textContent = t("pagesTitle");
   const bt = document.querySelector(".bench-title"); if (bt) bt.textContent = t("bench");
+  const bcb = document.getElementById("benchClearBtn");
+  if (bcb) { bcb.textContent = t("benchClear"); bcb.title = t("benchClearTitle"); }
+  const csi = document.getElementById("cardSearchInput"); if (csi) csi.placeholder = t("cardSearchPh");
+  setTitle("statOwned", "statOwnedTitle"); setTitle("statMissing", "statMissingTitle"); setTitle("statValue", "statValueTitle");
+  const csv = document.getElementById("wlCsvBtn"); if (csv) { csv.textContent = t("csvExport"); csv.title = t("csvExportTitle"); }
+  const wje = document.getElementById("wlJsonBtn"); if (wje) { wje.textContent = t("wlJsonExport"); wje.title = t("wlJsonExportTitle"); }
+  const wji = document.getElementById("wlJsonImportBtn"); if (wji) { wji.textContent = t("wlJsonImport"); wji.title = t("wlJsonImportTitle"); }
   // Startscreen
   setText("startSub", "startSub"); setText("startNewH", "startNewH"); setText("startOpenH", "startOpenH");
   setText("startCreateBtn", "startCreate"); setText("startImportBtn", "startImport");
@@ -1844,6 +2580,10 @@ function applyLang() {
   const jump = document.getElementById("jumpInput"); if (jump) jump.placeholder = t("jumpPlaceholder");
   // Tooltips der Pfeile
   setTitle("sideNavPrev", "navPrev"); setTitle("sideNavNext", "navNext");
+  const ub = document.getElementById("undoBtn"); if (ub) ub.title = t("undoTitle");
+  setText("wlTitle", "wlTitle"); setText("wlAddCheck", "wlAddCheck");
+  setTitle("watchBtn", "watchBtnTitle");
+  const wsi = document.getElementById("wlSearchInput"); if (wsi) wsi.placeholder = t("wlSearchPh");
 }
 
 function setLang(l, doSave = true) {
@@ -1852,48 +2592,114 @@ function setLang(l, doSave = true) {
   localStorage.setItem(LANG_KEY, lang);
   applyLang();
   if (currentId) { renderFormatGrid && null; render(); }   // dynamische Texte neu
+  if (document.getElementById("watchlist").classList.contains("open")) renderWatchlist();
   if (doSave && currentId) save();
 }
 
 document.getElementById("langDE").addEventListener("click", () => setLang("de"));
 document.getElementById("langEN").addEventListener("click", () => setLang("en"));
+document.getElementById("wlLangDE").addEventListener("click", () => setLang("de"));
+document.getElementById("wlLangEN").addEventListener("click", () => setLang("en"));
+
+/* Undo-Button + Strg+Z */
+document.getElementById("undoBtn").addEventListener("click", doUndo);
+
+/* Watchlist öffnen/schließen + Preis-Check-Spalte hinzufügen */
+document.getElementById("benchClearBtn").addEventListener("click", () => {
+  if (!state.bench.some(Boolean)) { toast(t("benchEmptyAlready")); return; }
+  pushUndo();
+  state.bench = new Array(BENCH_SIZE).fill(null);
+  save(); render();
+  toast(t("benchCleared"));
+});
+
+document.getElementById("watchBtn").addEventListener("click", openWatchlist);
+document.getElementById("wlClose").addEventListener("click", closeWatchlist);
+document.getElementById("wlSearchInput").addEventListener("input", (e) => {
+  wlSearch = e.target.value; renderWatchlist();
+});
+document.getElementById("wlAddCheck").addEventListener("click", () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const d = prompt(t("wlCheckPrompt"), today);
+  if (d === null) return;
+  const date = (d || "").trim() || today;
+  // eine leere Spalte anlegen: wir hängen an die erste besessene Karte einen
+  // Platzhalter-Check mit Preis null, damit die Spalte erscheint
+  const cards = ownedCards();
+  if (!cards.length) return;
+  const w = state.watch[cards[0].key];
+  if (!(w.checks || []).some(ch => ch.date === date)) { (w.checks || (w.checks = [])).push({ date, price: null }); }
+  save(); renderWatchlist();
+});
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+    if (document.activeElement && document.activeElement.isContentEditable) return;
+    if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+    e.preventDefault(); doUndo();
+  }
+});
+
+/* Pfeiltasten blättern im Ordner, solange kein Eingabefeld / Overlay aktiv ist. */
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+  const ae = document.activeElement;
+  if (ae && (ae.isContentEditable || ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
+  if (document.getElementById("watchlist").classList.contains("open")) return;
+  if (!document.getElementById("startScreen").classList.contains("hidden")) return;
+  if (document.getElementById("modal").classList.contains("open")) return;
+  if (!currentId) return;
+  e.preventDefault();
+  flip(e.key === "ArrowRight" ? "next" : "prev");
+});
 
 /* Währungsumschaltung */
 const curEURBtn = document.getElementById("curEUR");
 const curUSDBtn = document.getElementById("curUSD");
+const wlCurEURBtn = document.getElementById("wlCurEUR");
+const wlCurUSDBtn = document.getElementById("wlCurUSD");
 function applyCurrency() {
   curEURBtn.classList.toggle("active", state.currency === "EUR");
   curUSDBtn.classList.toggle("active", state.currency === "USD");
+  wlCurEURBtn.classList.toggle("active", state.currency === "EUR");
+  wlCurUSDBtn.classList.toggle("active", state.currency === "USD");
 }
-curEURBtn.addEventListener("click", () => { state.currency = "EUR"; applyCurrency(); save(); render(); });
-curUSDBtn.addEventListener("click", () => { state.currency = "USD"; applyCurrency(); save(); render(); });
+function setCurrency(c) {
+  state.currency = c; applyCurrency(); save(); render();
+  if (document.getElementById("watchlist").classList.contains("open")) renderWatchlist();
+}
+curEURBtn.addEventListener("click", () => setCurrency("EUR"));
+curUSDBtn.addEventListener("click", () => setCurrency("USD"));
+wlCurEURBtn.addEventListener("click", () => setCurrency("EUR"));
+wlCurUSDBtn.addEventListener("click", () => setCurrency("USD"));
 
-/* Preise im Export ein-/ausblenden (Segment-Switch) */
-const exportPricesOnBtn = document.getElementById("exportPricesOn");
-const exportPricesOffBtn = document.getElementById("exportPricesOff");
+/* Preise im Export ein-/ausblenden (Toggle-Switch) */
+const exportPricesToggleBtn = document.getElementById("exportPricesToggle");
 function applyExportPricesBtn() {
   const on = !!state.showPricesInExport;
-  exportPricesOnBtn.classList.toggle("active", on);
-  exportPricesOffBtn.classList.toggle("active", !on);
+  exportPricesToggleBtn.classList.toggle("on", on);
+  exportPricesToggleBtn.setAttribute("aria-checked", String(on));
+  exportPricesToggleBtn.title = t(on ? "pricesOnToast" : "pricesOffToast");
 }
-exportPricesOnBtn.addEventListener("click", () => { state.showPricesInExport = true; applyExportPricesBtn(); save(); toast(t("pricesOnToast")); });
-exportPricesOffBtn.addEventListener("click", () => { state.showPricesInExport = false; applyExportPricesBtn(); save(); toast(t("pricesOffToast")); });
+exportPricesToggleBtn.addEventListener("click", () => {
+  state.showPricesInExport = !state.showPricesInExport;
+  applyExportPricesBtn(); save();
+  toast(t(state.showPricesInExport ? "pricesOnToast" : "pricesOffToast"));
+});
 
 /* ============================================================================
    MARKIER-MODUS (an/aus)
    ========================================================================== */
-const markOffBtn = document.getElementById("markOff");
-const markOnBtn = document.getElementById("markOn");
+const markToggleBtn = document.getElementById("markToggle");
 function applyMarkSeg() {
-  markOnBtn.classList.toggle("active", markMode);
-  markOffBtn.classList.toggle("active", !markMode);
+  markToggleBtn.classList.toggle("on", markMode);
+  markToggleBtn.setAttribute("aria-checked", String(markMode));
+  markToggleBtn.title = t(markMode ? "markOnToast" : "markOffToast");
 }
 function setMarkMode(on) {
   markMode = on; applyMarkSeg(); render();
-  toast(markMode ? "Markier-Modus an: grün = habe ich, rot = fehlt noch." : "Markier-Modus aus.");
+  toast(t(markMode ? "markOnToast" : "markOffToast"));
 }
-markOnBtn.addEventListener("click", () => setMarkMode(true));
-markOffBtn.addEventListener("click", () => setMarkMode(false));
+markToggleBtn.addEventListener("click", () => setMarkMode(!markMode));
 
 /* ============================================================================
    GESAMTHINTERGRUND (hinter dem Ordner)
@@ -1993,8 +2799,95 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   const jsonName = (state.name || "tcg-binder").replace(/[^a-z0-9äöüß \-]/gi, "").trim().replace(/\s+/g, "-") || "tcg-binder";
   const a = document.createElement("a"); a.href = url; a.download = jsonName + ".json"; a.click();
   URL.revokeObjectURL(url);
+  localStorage.setItem(LAST_EXPORT_KEY, String(Date.now()));
   toast(t("exportJson"));
 });
+
+/* ============================================================================
+   CSV-EXPORT DER WATCHLIST
+   ========================================================================== */
+function csvEscape(v) {
+  const s = String(v == null ? "" : v);
+  return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+document.getElementById("wlCsvBtn").addEventListener("click", () => {
+  const cards = ownedCards();
+  if (!cards.length) { toast(t("csvNoData")); return; }
+  const dates = allCheckDates();
+  const header = [t("wlName"), t("wlLang"), t("wlQty"), t("wlBuy"), ...dates, t("wlDiff")];
+  const rows = [header];
+  cards.forEach(c => {
+    const w = state.watch[c.key];
+    const latest = latestCheckPrice(w);
+    const diff = (latest != null && w.buyPrice != null) ? (latest - w.buyPrice) : "";
+    const row = [
+      w.name || "", langOptions().find(o => o.v === w.lang)?.l || w.lang || "",
+      c.count, w.buyPrice != null ? w.buyPrice : "",
+      ...dates.map(d => { const ex = (w.checks || []).find(ch => ch.date === d); return ex && ex.price != null ? ex.price : ""; }),
+      diff,
+    ];
+    rows.push(row);
+  });
+  const csv = rows.map(r => r.map(csvEscape).join(";")).join("\r\n");
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const name = (state.name || "watchlist").replace(/[^a-z0-9äöüß \-]/gi, "").trim().replace(/\s+/g, "-") || "watchlist";
+  const a = document.createElement("a"); a.href = url; a.download = name + "-watchlist.csv"; a.click();
+  URL.revokeObjectURL(url);
+  toast(t("csvExported"));
+});
+
+/* ============================================================================
+   WATCHLIST-JSON EXPORT / IMPORT (eigenständig, unabhängig vom Ordner-Backup)
+   ----------------------------------------------------------------------------
+   Das Voll-Backup ("Exportieren"/"Importieren" oben) enthält state.watch bereits
+   automatisch, weil es Teil des kompletten Zustands ist. Dieser Export hier ist
+   ein LEICHTGEWICHTIGER Zusatz, um NUR die Watchlist-Daten (Namen, Sprache,
+   Einkaufspreis, Preis-Checks) zu sichern/übertragen, ohne die kompletten
+   Kartenbilder mitzuschleppen. Der Import gleicht per Bild-Hash (imgKey) mit
+   den aktuell im Ordner vorhandenen Karten ab.
+   ========================================================================== */
+document.getElementById("wlJsonBtn").addEventListener("click", () => {
+  const cards = ownedCards();
+  if (!cards.length) { toast(t("csvNoData")); return; }
+  const payload = {};
+  cards.forEach(c => { if (state.watch[c.key]) payload[c.key] = state.watch[c.key]; });
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const name = (state.name || "watchlist").replace(/[^a-z0-9äöüß \-]/gi, "").trim().replace(/\s+/g, "-") || "watchlist";
+  const a = document.createElement("a"); a.href = url; a.download = name + "-watchlist.json"; a.click();
+  URL.revokeObjectURL(url);
+  toast(t("wlJsonExported"));
+});
+
+const wlJsonImportFile = document.getElementById("wlJsonImportFile");
+document.getElementById("wlJsonImportBtn").addEventListener("click", () => { wlJsonImportFile.value = ""; wlJsonImportFile.click(); });
+wlJsonImportFile.addEventListener("change", () => {
+  const file = wlJsonImportFile.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("invalid");
+      pushUndo();
+      let n = 0;
+      Object.keys(data).forEach(key => {
+        const incoming = data[key];
+        if (!incoming || typeof incoming !== "object") return;
+        state.watch[key] = Object.assign(
+          { name: "", lang: "en", buyPrice: null, checks: [] },
+          state.watch[key], incoming
+        );
+        n++;
+      });
+      applyWatchPricesToBinder(); save(); render();
+      if (document.getElementById("watchlist").classList.contains("open")) renderWatchlist();
+      toast(t("wlJsonImported", n));
+    } catch (e) { toast(t("wlJsonImportFail")); console.warn(e); }
+  };
+  reader.readAsText(file);
+});
+
 const importFileInput = document.getElementById("importFile");
 document.getElementById("importBtn").addEventListener("click", () => { importFileInput.value = ""; importFileInput.click(); });
 importFileInput.addEventListener("change", () => {
@@ -2008,7 +2901,7 @@ importFileInput.addEventListener("change", () => {
         bench: new Array(BENCH_SIZE).fill(null), pageBg: {}, fit: "cover", owned: {}, appBg: null,
         prices: {}, currency: "EUR", showPricesInExport: false, exportLogo: null, exportName: "",
         coverTitle: "My Collection", coverSub: t("coverSubtitle"),
-        cols: 3, rows: 3, name: t("defaultColName"), lang: lang
+        cols: 3, rows: 3, name: t("defaultColName"), lang: lang, watch: {}
       }, data);
       state.spread = 0;
       // importierte Collection bekommt eine eigene ID (so bleibt sie in der Liste)
@@ -2073,7 +2966,7 @@ function exportPageImage(pageIndex) {
       ctx.fillStyle = "rgba(0,0,0,0.18)"; ctx.fillRect(0, 0, W, H);
     } else {
       const g = ctx.createLinearGradient(0, 0, W, H);
-      g.addColorStop(0, "#fbf6ea"); g.addColorStop(1, "#e9dcc2");
+      g.addColorStop(0, "#f2f3f8"); g.addColorStop(1, "#e4e6ee");
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     }
 
@@ -2124,8 +3017,8 @@ function exportPageImage(pageIndex) {
         const bx = x + (cardW - bw) / 2, by = y + cardH - bh - cardW * 0.06;
         roundRect(ctx, bx, by, bw, bh, bh / 2);
         ctx.fillStyle = "rgba(0,0,0,0.75)"; ctx.fill();
-        ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(201,162,75,0.7)"; ctx.stroke();
-        ctx.fillStyle = "#ffe9a8"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(139,124,246,0.7)"; ctx.stroke();
+        ctx.fillStyle = "#6ee7b7"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         ctx.fillText(label, bx + bw / 2, by + bh / 2 + 1);
       }
     }
@@ -2141,9 +3034,9 @@ function exportPageImage(pageIndex) {
       // vertikal in der bottomZone zentrieren
       const by = (H - bottomZone) + (bottomZone - bh) / 2;
       roundRect(ctx, bx, by, bw, bh, bh / 2);
-      ctx.fillStyle = "rgba(20,14,9,0.88)"; ctx.fill();
-      ctx.lineWidth = 2; ctx.strokeStyle = "rgba(201,162,75,0.8)"; ctx.stroke();
-      ctx.fillStyle = "#ffe9a8"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillStyle = "rgba(16,17,24,0.88)"; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = "rgba(139,124,246,0.8)"; ctx.stroke();
+      ctx.fillStyle = "#6ee7b7"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText(label, W / 2, by + bh / 2 + 1);
     }
 
