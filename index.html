@@ -374,6 +374,20 @@
   .slot.filled:hover .dup { display: flex; }
   .slot .dup:hover { background: var(--gold); color: #14121f; }
 
+  /* Watchlist-Sprung-Knopf (erscheint beim Hovern, neben Duplizieren) */
+  .slot .watch-link {
+    position: absolute; top: 5px; right: 57px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(0,0,0,.62); color: #fff; border: 0;
+    display: none; align-items: center; justify-content: center;
+    pointer-events: auto; z-index: 4;
+  }
+  .slot .watch-link svg { width: 12px; height: 12px; }
+  .slot.filled:hover .watch-link { display: flex; }
+  .slot .watch-link:hover { background: var(--gold); color: #14121f; }
+  .slot .watch-link:disabled { opacity: .4; cursor: not-allowed; }
+  .slot .watch-link:disabled:hover { background: rgba(0,0,0,.62); color: #fff; }
+
   /* Preis-Knopf (unten links, beim Hovern) */
   .slot .price-btn {
     position: absolute; bottom: 5px; left: 5px;
@@ -593,9 +607,16 @@
     display: none; flex-direction: column; padding: 20px 24px;
   }
   .watchlist.open { display: flex; }
-  .wl-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .wl-title { font-size: 20px; font-weight: 800; }
+  .wl-head { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .wl-title { font-size: 20px; font-weight: 800; margin-right: auto; white-space: nowrap; }
   .wl-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .wl-close {
+    appearance: none; cursor: pointer; flex: none; display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid rgba(244,63,94,.35); background: rgba(244,63,94,.12); color: #e7e8f2;
+    padding: 8px 14px; border-radius: 9px; font-size: 13px; font-weight: 600; transition: .15s;
+  }
+  .wl-close svg { width: 15px; height: 15px; flex: none; }
+  .wl-close:hover { background: var(--accent); border-color: transparent; }
   .wl-total { font-size: 15px; color: #6ee7b7; font-weight: 700; margin-bottom: 14px; }
   .wl-tablewrap { flex: 1; overflow: auto; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; }
   .wl-empty { padding: 40px; text-align: center; opacity: .5; font-style: italic; display: none; }
@@ -612,11 +633,19 @@
     position: absolute; top: 0; right: -3px; width: 8px; height: 100%;
     cursor: col-resize; z-index: 2;
   }
+  .wl-search-wrap { position: relative; display: inline-flex; align-items: center; }
   .wl-search {
     background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
-    color: #e7e8f2; border-radius: 8px; padding: 7px 10px; font-size: 13px; width: 180px;
+    color: #e7e8f2; border-radius: 8px; padding: 7px 26px 7px 10px; font-size: 13px; width: 180px;
   }
   .wl-search:focus { outline: 2px solid var(--gold); }
+  .wl-search-clear {
+    position: absolute; right: 6px; appearance: none; border: 0; background: transparent;
+    color: rgba(231,232,242,.5); cursor: pointer; font-size: 12px; width: 18px; height: 18px;
+    border-radius: 50%; display: none; align-items: center; justify-content: center;
+  }
+  .wl-search-clear:hover { background: rgba(255,255,255,.12); color: #e7e8f2; }
+  .wl-search-wrap.has-text .wl-search-clear { display: flex; }
   /* Einzel- und Gesamtpreis untereinander in einer Zelle */
   .wl-total-line { font-size: 11px; opacity: .65; margin-top: 3px; }
   .wl-total-line b { color: #6ee7b7; font-weight: 700; }
@@ -741,6 +770,12 @@
     50% { box-shadow: 0 0 0 3px var(--gold), 0 0 6px rgba(139,124,246,.25); }
   }
   .slot.search-highlight { animation: slotHighlightPulse 0.9s ease-in-out 3; }
+
+  @keyframes rowHighlightPulse {
+    0%, 100% { background: rgba(139,124,246,.28); }
+    50% { background: rgba(139,124,246,.08); }
+  }
+  .wl-table tbody tr.search-highlight { animation: rowHighlightPulse 0.9s ease-in-out 3; }
 </style>
 </head>
 <body>
@@ -775,6 +810,10 @@
       </div>
       <button class="icon-switch" id="markToggle" role="switch" aria-checked="false" title="Karten farbig markieren (grün = habe ich, rot = fehlt)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+      </button>
+      <button class="icon-switch" id="priceVisibleToggle" role="switch" aria-checked="true" title="Preise im Ordner anzeigen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
         <span class="switch-track"><span class="switch-thumb"></span></span>
       </button>
       <button class="icon-switch" id="exportPricesToggle" role="switch" aria-checked="false" title="Preise + Gesamtsumme im Bild-Export anzeigen">
@@ -891,14 +930,20 @@
           <button id="wlCurEUR">€</button>
           <button id="wlCurUSD">$</button>
         </div>
-        <input type="text" id="wlSearchInput" class="wl-search" placeholder="Suchen…">
+        <div class="wl-search-wrap">
+          <input type="text" id="wlSearchInput" class="wl-search" placeholder="Suchen…">
+          <button class="wl-search-clear" id="wlSearchClear" title="Suche löschen">✕</button>
+        </div>
         <button class="btn" id="wlAddCheck">+ Preis-Check</button>
         <button class="btn" id="wlCsvBtn">CSV</button>
         <button class="btn" id="wlJsonBtn" title="Watchlist als JSON exportieren">JSON ⭳</button>
         <button class="btn" id="wlJsonImportBtn" title="Watchlist aus JSON importieren">JSON ⭱</button>
         <input type="file" id="wlJsonImportFile" class="hidden" accept="application/json,.json">
-        <button class="btn" id="wlClose">✕</button>
       </div>
+      <button class="wl-close" id="wlClose" title="Zurück zum Ordner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+        <span id="wlCloseLabel">Zurück zum Ordner</span>
+      </button>
     </div>
     <div class="wl-total" id="wlTotal"></div>
     <div class="wl-tablewrap">
@@ -991,6 +1036,7 @@ const TEXTS = {
     exportImg: "Seitenbild (1080×1350) exportiert – alle Karten enthalten.",
     pricesOnToast: "Preise erscheinen im Bild-Export.",
     pricesOffToast: "Preise werden im Export ausgeblendet.",
+    pricesBinderOnToast: "Preise im Ordner sichtbar.", pricesBinderOffToast: "Preise im Ordner ausgeblendet.",
     markOnToast: "Markier-Modus an: grün = habe ich, rot = fehlt noch.",
     markOffToast: "Markier-Modus aus.",
     curEUR: "€ (EUR)", curUSD: "$ (USD)",
@@ -1028,6 +1074,12 @@ const TEXTS = {
     wlJsonExported: "Watchlist als JSON exportiert.", wlJsonImported: (n) => n + " Watchlist-Einträge importiert.",
     wlJsonImportFail: "Import fehlgeschlagen: keine gültige Watchlist-Datei.",
     watchBtnTitle: "Watchlist / Preisbeobachtung", moreBtnTitle: "Weitere Optionen",
+    watchLinkTitle: "Zur Karte in der Watchlist springen",
+    watchLinkMissingTitle: "Als 'fehlt' markiert – nicht in der Watchlist",
+    wlDeleteCheckTitle: "Diesen Preis-Check bei allen Karten löschen",
+    wlCheckDeleted: (d) => "Preis-Check vom " + d + " gelöscht.",
+    wlSearchClearTitle: "Suche löschen",
+    wlCloseLabel: "Zurück zum Ordner",
   },
   en: {
     brandSub: "· your digital binder",
@@ -1079,6 +1131,7 @@ const TEXTS = {
     exportImg: "Page image (1080×1350) exported – all cards included.",
     pricesOnToast: "Prices will appear in the image export.",
     pricesOffToast: "Prices are hidden in the export.",
+    pricesBinderOnToast: "Prices visible in the binder.", pricesBinderOffToast: "Prices hidden in the binder.",
     markOnToast: "Marking on: green = owned, red = missing.",
     markOffToast: "Marking off.",
     curEUR: "€ (EUR)", curUSD: "$ (USD)",
@@ -1116,6 +1169,12 @@ const TEXTS = {
     wlJsonExported: "Watchlist exported as JSON.", wlJsonImported: (n) => n + " watchlist entries imported.",
     wlJsonImportFail: "Import failed: not a valid watchlist file.",
     watchBtnTitle: "Watchlist / price tracking", moreBtnTitle: "More options",
+    watchLinkTitle: "Jump to this card in the watchlist",
+    watchLinkMissingTitle: "Marked as 'missing' – not in the watchlist",
+    wlDeleteCheckTitle: "Delete this price check for all cards",
+    wlCheckDeleted: (d) => "Price check from " + d + " deleted.",
+    wlSearchClearTitle: "Clear search",
+    wlCloseLabel: "Back to binder",
   }
 };
 
@@ -1157,6 +1216,7 @@ let state = {
   prices: {},
   currency: "EUR",           // "EUR" oder "USD"
   showPricesInExport: false, // ob Preise im Bild-Export erscheinen
+  showPricesInBinder: true,  // ob Preis-Badges/Seitensumme im Ordner selbst sichtbar sind
   exportLogo: null,          // Base64-Logo fürs Export-Wasserzeichen (global)
   exportName: "",            // Text-Wasserzeichen (z. B. @channel), global
   lang: "de",                // Sprache der Oberfläche ("de" | "en")
@@ -1199,7 +1259,7 @@ function freshState(cols, rows, name) {
     pageBg: {}, pages: 6, spread: 0, fit: "cover",
     coverTitle: "My Collection", coverSub: t("coverSubtitle"),
     owned: {}, appBg: null, prices: {}, currency: "EUR",
-    showPricesInExport: false, exportLogo: null, exportName: "",
+    showPricesInExport: false, showPricesInBinder: true, exportLogo: null, exportName: "",
     lang: lang, cols: cols, rows: rows, name: name || "Collection", watch: {},
   };
 }
@@ -1334,7 +1394,7 @@ function openCollection(id) {
     normalize();
     if (state.lang === "de" || state.lang === "en") setLang(state.lang, false);
     hideStartScreen();
-    applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyMarkSeg();
+    applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyPriceVisibleToggle(); applyMarkSeg();
     render();
     maybeShowBackupReminder();
     return true;
@@ -1359,7 +1419,7 @@ function createCollection(cols, rows, name) {
   normalize();
   save();
   hideStartScreen();
-  applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyMarkSeg();
+  applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyPriceVisibleToggle(); applyMarkSeg();
   render();
 }
 
@@ -1387,6 +1447,7 @@ function normalize() {
   if (!state.watch || typeof state.watch !== "object") state.watch = {};
   if (!state.prices || typeof state.prices !== "object") state.prices = {};
   if (state.currency !== "USD" && state.currency !== "EUR") state.currency = "EUR";
+  if (typeof state.showPricesInBinder !== "boolean") state.showPricesInBinder = true;
   migrateWatchKeys();
 }
 
@@ -1682,7 +1743,7 @@ function makePage(pageIndex, sideClass) {
 
   // Seitensumme (nur wenn mindestens ein Preis gesetzt ist)
   const sum = pageSum(pageIndex);
-  if (sum != null) {
+  if (state.showPricesInBinder && sum != null) {
     const sumEl = document.createElement("div");
     sumEl.className = "page-sum";
     sumEl.textContent = t("pageSumPrefix") + formatPrice(sum);
@@ -1726,6 +1787,14 @@ function allCheckDates() {
   return [...set].sort();
 }
 
+/* Eine komplette Preis-Check-Spalte löschen (bei allen Karten). */
+function deleteCheckDate(date) {
+  pushUndo();
+  Object.values(state.watch).forEach(w => { if (w.checks) w.checks = w.checks.filter(c => c.date !== date); });
+  applyWatchPricesToBinder(); save(); renderWatchlist(); render();
+  toast(t("wlCheckDeleted", date));
+}
+
 function openWatchlist() {
   syncWatch();
   applyWatchPricesToBinder();
@@ -1736,6 +1805,37 @@ function openWatchlist() {
 function closeWatchlist() {
   document.getElementById("watchlist").classList.remove("open");
   render();   // Ordner mit ggf. aktualisierten Preisen neu zeichnen
+}
+
+/* Ein "change" (z. B. per Tab-Taste ausgelöst) baut die ganze Tabelle neu auf,
+   was sonst mitten in der Fokus-Bewegung den Zielknoten zerstören und den
+   Tab-Fluss abreißen lassen würde. Wir warten daher einen Tick, bis der
+   Browser den Fokus bereits auf das nächste Feld gelegt hat, rendern dann
+   neu und fokussieren das entsprechende neue Feld wieder (per data-row-key/
+   data-col identifiziert), damit Tab nahtlos weiter funktioniert. */
+function wlRerenderKeepingFocus() {
+  setTimeout(() => {
+    const active = document.activeElement;
+    let focusInfo = null;
+    if (active && active.dataset && active.dataset.rowKey) {
+      focusInfo = {
+        rowKey: active.dataset.rowKey, col: active.dataset.col,
+        selStart: (typeof active.selectionStart === "number") ? active.selectionStart : null,
+        selEnd: (typeof active.selectionEnd === "number") ? active.selectionEnd : null,
+      };
+    }
+    renderWatchlist();
+    if (focusInfo) {
+      const el = [...document.querySelectorAll(".wl-table [data-row-key][data-col]")]
+        .find(e => e.dataset.rowKey === focusInfo.rowKey && e.dataset.col === focusInfo.col);
+      if (el) {
+        el.focus();
+        if (focusInfo.selStart != null && el.setSelectionRange) {
+          try { el.setSelectionRange(focusInfo.selStart, focusInfo.selEnd); } catch (e) {}
+        }
+      }
+    }
+  }, 0);
 }
 
 function renderWatchlist() {
@@ -1767,6 +1867,10 @@ function renderWatchlist() {
       const ex = (w.checks || []).find(ch => ch.date === d);
       return ex && ex.price != null ? ex.price : -Infinity;
     }
+    if (by === "diff") {
+      const latest = latestCheckPrice(w);
+      return (latest != null && w.buyPrice != null) ? (latest - w.buyPrice) : -Infinity;
+    }
     return 0;
   };
   cards.sort((a, b) => {
@@ -1789,7 +1893,7 @@ function renderWatchlist() {
 
   // sortierbare Kopfzelle
   const arrow = (by) => wlSort.by === by ? (wlSort.dir === 1 ? " ▲" : " ▼") : "";
-  const makeSortableTh = (label, by) => {
+  const makeSortableTh = (label, by, onDelete) => {
     const colKey = by;
     const th = document.createElement("th");
     th.className = "wl-th-sort";
@@ -1798,9 +1902,15 @@ function renderWatchlist() {
     const span = document.createElement("span"); span.textContent = label;
     const arr = document.createElement("span"); arr.className = "wl-arrow"; arr.textContent = arrow(by);
     wrap.appendChild(span); wrap.appendChild(arr);
+    if (onDelete) {
+      const del = document.createElement("button");
+      del.className = "wl-del-check"; del.textContent = "✕"; del.title = t("wlDeleteCheckTitle");
+      del.addEventListener("click", (e) => { e.stopPropagation(); onDelete(); });
+      wrap.appendChild(del);
+    }
     th.appendChild(wrap);
     th.addEventListener("click", (e) => {
-      if (e.target.classList.contains("wl-resizer")) return;
+      if (e.target.classList.contains("wl-resizer") || e.target.classList.contains("wl-del-check")) return;
       if (wlSort.by === by) wlSort.dir *= -1; else { wlSort.by = by; wlSort.dir = 1; }
       renderWatchlist();
     });
@@ -1823,8 +1933,8 @@ function renderWatchlist() {
   htr.appendChild(makePlainTh(t("wlLang"), "lang"));
   htr.appendChild(makeSortableTh(t("wlQty"), "count"));
   htr.appendChild(makeSortableTh(t("wlBuy"), "buy"));
-  dates.forEach(d => htr.appendChild(makeSortableTh(d, "check:" + d)));
-  htr.appendChild(makePlainTh(t("wlDiff"), "diff"));
+  dates.forEach(d => htr.appendChild(makeSortableTh(d, "check:" + d, () => deleteCheckDate(d))));
+  htr.appendChild(makeSortableTh(t("wlDiff"), "diff"));
   thead.appendChild(htr);
 
   // Zeilen
@@ -1836,6 +1946,7 @@ function renderWatchlist() {
   cards.forEach(c => {
     const w = state.watch[c.key];
     const tr = document.createElement("tr");
+    tr.dataset.key = c.key;
     qtyTotal += c.count;
 
     // Bild
@@ -1849,12 +1960,14 @@ function renderWatchlist() {
     const tdName = document.createElement("td");
     const nameIn = document.createElement("input");
     nameIn.className = "wl-name-input"; nameIn.value = w.name || ""; nameIn.placeholder = t("wlNamePh");
-    nameIn.addEventListener("change", () => { w.name = nameIn.value; save(); });
+    nameIn.dataset.rowKey = c.key; nameIn.dataset.col = "name";
+    nameIn.addEventListener("change", () => { w.name = nameIn.value; save(); wlRerenderKeepingFocus(); });
     tdName.appendChild(nameIn); tr.appendChild(tdName);
 
     // Sprache
     const tdLang = document.createElement("td");
     const sel = document.createElement("select"); sel.className = "wl-lang-select";
+    sel.dataset.rowKey = c.key; sel.dataset.col = "lang";
     langOptions().forEach(o => { const opt = document.createElement("option"); opt.value = o.v; opt.textContent = o.l; if (w.lang === o.v) opt.selected = true; sel.appendChild(opt); });
     sel.addEventListener("change", () => { w.lang = sel.value; save(); });
     tdLang.appendChild(sel); tr.appendChild(tdLang);
@@ -1869,10 +1982,11 @@ function renderWatchlist() {
     const buyIn = document.createElement("input");
     buyIn.className = "wl-price-input"; buyIn.type = "text";
     buyIn.value = w.buyPrice != null ? w.buyPrice : "";
+    buyIn.dataset.rowKey = c.key; buyIn.dataset.col = "buy";
     buyIn.addEventListener("change", () => {
       const v = parseFloat((buyIn.value || "").replace(",", "."));
       w.buyPrice = isNaN(v) ? null : Math.round(v * 100) / 100;
-      save(); renderWatchlist();
+      save(); wlRerenderKeepingFocus();
     });
     tdBuy.appendChild(buyIn);
     tdBuy.appendChild(priceCell(w.buyPrice, c.count));
@@ -1886,13 +2000,14 @@ function renderWatchlist() {
       inp.className = "wl-price-input"; inp.type = "text";
       const ex = (w.checks || []).find(ch => ch.date === d);
       inp.value = ex && ex.price != null ? ex.price : "";
+      inp.dataset.rowKey = c.key; inp.dataset.col = "check:" + d;
       inp.addEventListener("change", () => {
         const v = parseFloat((inp.value || "").replace(",", "."));
         let arr = w.checks || (w.checks = []);
         const existing = arr.find(ch => ch.date === d);
         if (isNaN(v)) { if (existing) w.checks = arr.filter(ch => ch.date !== d); }
         else { if (existing) existing.price = Math.round(v * 100) / 100; else arr.push({ date: d, price: Math.round(v * 100) / 100 }); }
-        applyWatchPricesToBinder(); save(); renderWatchlist();
+        applyWatchPricesToBinder(); save(); wlRerenderKeepingFocus();
       });
       td.appendChild(inp);
       const price = ex && ex.price != null ? Number(ex.price) : null;
@@ -2184,6 +2299,18 @@ function makeSlot(loc) {
     dup.addEventListener("click", (e) => { e.stopPropagation(); duplicateCard(loc); });
     slot.appendChild(dup);
 
+    // Zur Karte in der Watchlist springen (nur Ordner-Karten, die nicht als "fehlt" markiert sind)
+    if (isBinderSlot) {
+      const missing = state.owned[slotIndex] === "missing";
+      const watchLink = document.createElement("button");
+      watchLink.className = "watch-link";
+      watchLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m23 6-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>';
+      watchLink.title = missing ? t("watchLinkMissingTitle") : t("watchLinkTitle");
+      watchLink.disabled = missing;
+      watchLink.addEventListener("click", (e) => { e.stopPropagation(); jumpToWatchlistFromSlot(slotIndex); });
+      slot.appendChild(watchLink);
+    }
+
     // Preis setzen (nur Ordner-Karten): kleiner Knopf unten links
     if (isBinderSlot) {
       const priceBtn = document.createElement("button");
@@ -2194,7 +2321,7 @@ function makeSlot(loc) {
 
       // vorhandenen Preis als Badge unten anzeigen
       const pv = state.prices[slotIndex];
-      if (pv != null && !isNaN(pv)) {
+      if (state.showPricesInBinder && pv != null && !isNaN(pv)) {
         const badge = document.createElement("div");
         badge.className = "price-badge"; badge.textContent = formatPrice(pv);
         slot.appendChild(badge);
@@ -2383,6 +2510,21 @@ function jumpToCardSlot(slotIndex) {
   }
 }
 
+/* Von einer Ordner-Karte direkt zur passenden Zeile in der Watchlist springen. */
+function jumpToWatchlistFromSlot(slotIndex) {
+  const img = state.slots[slotIndex];
+  if (!img) return;
+  const key = imgKey(img);
+  openWatchlist();
+  const row = document.querySelector('.wl-table tbody tr[data-key="' + key + '"]');
+  if (row) {
+    row.classList.remove("search-highlight"); void row.offsetWidth;
+    row.classList.add("search-highlight");
+    row.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => row.classList.remove("search-highlight"), 2800);
+  }
+}
+
 /* Besessene Karten anhand des in der Watchlist eingetragenen Namens durchsuchen. */
 function searchOwnedCards(query) {
   const q = (query || "").trim().toLowerCase();
@@ -2557,6 +2699,7 @@ function applyLang() {
   setTitle("fitCover", "fitCover"); setTitle("fitContain", "fitContain");
   setTitle("markToggle", markMode ? "markOnToast" : "markOffToast");
   setTitle("exportPricesToggle", state.showPricesInExport ? "pricesOnToast" : "pricesOffToast");
+  setTitle("priceVisibleToggle", state.showPricesInBinder !== false ? "pricesBinderOnToast" : "pricesBinderOffToast");
   setTitle("moreBtn", "moreBtnTitle");
   setText("appBgBtn", "bgChange"); setText("appBgResetBtn", "bgReset");
   setText("exportLogoBtn", "logoChoose"); setText("exportNameBtn", "nameChoose"); setText("exportLogoClearBtn", "logoClear");
@@ -2582,8 +2725,10 @@ function applyLang() {
   setTitle("sideNavPrev", "navPrev"); setTitle("sideNavNext", "navNext");
   const ub = document.getElementById("undoBtn"); if (ub) ub.title = t("undoTitle");
   setText("wlTitle", "wlTitle"); setText("wlAddCheck", "wlAddCheck");
+  setText("wlCloseLabel", "wlCloseLabel"); setTitle("wlClose", "wlCloseLabel");
   setTitle("watchBtn", "watchBtnTitle");
   const wsi = document.getElementById("wlSearchInput"); if (wsi) wsi.placeholder = t("wlSearchPh");
+  setTitle("wlSearchClear", "wlSearchClearTitle");
 }
 
 function setLang(l, doSave = true) {
@@ -2615,8 +2760,17 @@ document.getElementById("benchClearBtn").addEventListener("click", () => {
 
 document.getElementById("watchBtn").addEventListener("click", openWatchlist);
 document.getElementById("wlClose").addEventListener("click", closeWatchlist);
+const wlSearchWrap = document.getElementById("wlSearchInput").closest(".wl-search-wrap");
 document.getElementById("wlSearchInput").addEventListener("input", (e) => {
-  wlSearch = e.target.value; renderWatchlist();
+  wlSearch = e.target.value;
+  wlSearchWrap.classList.toggle("has-text", !!wlSearch);
+  renderWatchlist();
+});
+document.getElementById("wlSearchClear").addEventListener("click", () => {
+  const input = document.getElementById("wlSearchInput");
+  input.value = ""; wlSearch = "";
+  wlSearchWrap.classList.remove("has-text");
+  renderWatchlist(); input.focus();
 });
 document.getElementById("wlAddCheck").addEventListener("click", () => {
   const today = new Date().toISOString().slice(0, 10);
@@ -2671,6 +2825,20 @@ curEURBtn.addEventListener("click", () => setCurrency("EUR"));
 curUSDBtn.addEventListener("click", () => setCurrency("USD"));
 wlCurEURBtn.addEventListener("click", () => setCurrency("EUR"));
 wlCurUSDBtn.addEventListener("click", () => setCurrency("USD"));
+
+/* Preise im Ordner selbst ein-/ausblenden (Toggle-Switch) */
+const priceVisibleToggleBtn = document.getElementById("priceVisibleToggle");
+function applyPriceVisibleToggle() {
+  const on = state.showPricesInBinder !== false;
+  priceVisibleToggleBtn.classList.toggle("on", on);
+  priceVisibleToggleBtn.setAttribute("aria-checked", String(on));
+  priceVisibleToggleBtn.title = t(on ? "pricesBinderOnToast" : "pricesBinderOffToast");
+}
+priceVisibleToggleBtn.addEventListener("click", () => {
+  state.showPricesInBinder = !state.showPricesInBinder;
+  applyPriceVisibleToggle(); save(); render();
+  toast(t(state.showPricesInBinder ? "pricesBinderOnToast" : "pricesBinderOffToast"));
+});
 
 /* Preise im Export ein-/ausblenden (Toggle-Switch) */
 const exportPricesToggleBtn = document.getElementById("exportPricesToggle");
@@ -2810,6 +2978,16 @@ function csvEscape(v) {
   const s = String(v == null ? "" : v);
   return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
+/* Zahlen als reinen (unformatierten) Text mit landesüblichem Dezimaltrenner ausgeben.
+   Rohe JS-Zahlen wie "12.5" werden von deutschem Excel sonst als Datum (12. Mai)
+   fehlinterpretiert, weil kein Dezimalpunkt erwartet wird. Ein führendes Apostroph
+   erzwingt Text-Interpretation in Excel, ohne dass es sichtbar mit ausgegeben wird. */
+function csvNumber(v) {
+  if (v == null || isNaN(v)) return "";
+  const s = Number(v).toLocaleString(state.currency === "USD" ? "en-US" : "de-DE",
+    { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return "'" + s;
+}
 document.getElementById("wlCsvBtn").addEventListener("click", () => {
   const cards = ownedCards();
   if (!cards.length) { toast(t("csvNoData")); return; }
@@ -2819,12 +2997,12 @@ document.getElementById("wlCsvBtn").addEventListener("click", () => {
   cards.forEach(c => {
     const w = state.watch[c.key];
     const latest = latestCheckPrice(w);
-    const diff = (latest != null && w.buyPrice != null) ? (latest - w.buyPrice) : "";
+    const diff = (latest != null && w.buyPrice != null) ? (latest - w.buyPrice) : null;
     const row = [
       w.name || "", langOptions().find(o => o.v === w.lang)?.l || w.lang || "",
-      c.count, w.buyPrice != null ? w.buyPrice : "",
-      ...dates.map(d => { const ex = (w.checks || []).find(ch => ch.date === d); return ex && ex.price != null ? ex.price : ""; }),
-      diff,
+      c.count, csvNumber(w.buyPrice),
+      ...dates.map(d => { const ex = (w.checks || []).find(ch => ch.date === d); return csvNumber(ex && ex.price != null ? ex.price : null); }),
+      csvNumber(diff),
     ];
     rows.push(row);
   });
@@ -2899,7 +3077,7 @@ importFileInput.addEventListener("change", () => {
       if (!Array.isArray(data.slots)) throw new Error("Ungültige Datei");
       state = Object.assign({
         bench: new Array(BENCH_SIZE).fill(null), pageBg: {}, fit: "cover", owned: {}, appBg: null,
-        prices: {}, currency: "EUR", showPricesInExport: false, exportLogo: null, exportName: "",
+        prices: {}, currency: "EUR", showPricesInExport: false, showPricesInBinder: true, exportLogo: null, exportName: "",
         coverTitle: "My Collection", coverSub: t("coverSubtitle"),
         cols: 3, rows: 3, name: t("defaultColName"), lang: lang, watch: {}
       }, data);
@@ -2908,7 +3086,7 @@ importFileInput.addEventListener("change", () => {
       currentId = newId();
       if (state.lang === "de" || state.lang === "en") { lang = state.lang; applyLang(); }
       normalize(); hideStartScreen();
-      applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyMarkSeg(); save(); render();
+      applyAppBg(); applyCurrency(); applyExportPricesBtn(); applyPriceVisibleToggle(); applyMarkSeg(); save(); render();
       toast(t("imported"));
     } catch (e) { toast(t("importFail")); console.warn(e); }
   };
@@ -3159,7 +3337,7 @@ document.getElementById("homeBtn").addEventListener("click", () => {
 function boot() {
   lang = detectLang();
   applyLang();
-  applyCurrency(); applyExportPricesBtn(); applyMarkSeg();
+  applyCurrency(); applyExportPricesBtn(); applyPriceVisibleToggle(); applyMarkSeg();
   const lastId = localStorage.getItem(LAST_KEY);
   const idx = loadIndex();
   if (lastId && idx.find(c => c.id === lastId)) {
